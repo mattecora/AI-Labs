@@ -1,0 +1,57 @@
+\documentclass[letterpaper,headings=standardclasses]{scrartcl}
+
+\usepackage[margin=1in,includefoot]{geometry}
+
+\title{Homework 1}
+\subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
+\author{Matteo Corain 650088272}
+
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+
+The environment in which the part-picking robot can possibly operate is described by the following properties:
+
+\begin{itemize}
+
+\item \emph{Partially observable}: this environment may be considered only partially observable because the robot's capability of sensing the environment is essentially limited to a camera pointing towards the part to be moved. Agent has no knowledge of what is outside this restricted area under its sight; it simply analyzes and classifies one part at a time, whenever one gets inside the camera angle. Examples of environmental characteristics that this agent cannot sense include: detect whether a bin is full or not (in which case, the robot may avoid using it), detect if additional parts will be supplied (in which case, the robot may simply stop working).
+
+\item \emph{Single-agent}: the part-picking robot does not interact, within its environment, with other agents, i.e. entities striving to maximize their reward functions. In fact, the robot simply interacts with the parts being classified, which are of course passive with respect to its actions.
+
+\item \emph{Stochastic}: the environment in which the robot works cannot be considered completely deterministic since unexpected events due to uneforeseen causes can occur. Examples of those include: breakdown of the conveyor belt, overturning of a bin.
+
+\item \emph{Episodic}: the robot performs essentially a classification task, which is a notable example of a succession of atomic episodes, all of the same kind, which do not depend one on another. Each part is analyzed and classified in autonomy, before the robot moves to the next one.
+
+\item \emph{Dynamic}: the environment is dynamic if we suppose that the conveyor belt continues its operation, regardless of whether the robot is picking and classifying correctly the moved parts.
+
+\item \emph{Continuous}: in order to perform its operations, the robot has to continuously sense the environment and react accordingly to the arrival of new parts; as in the previous hypothesis, the conveyor belt is in fact in continuous operation and does not transition in a finite set of states.
+
+\end{itemize}
+
+Having characterized the environment in which the part-picking robot operates, it is now possible to describe its functioning by means of the PEAS framework:
+
+\begin{itemize}
+
+\item \emph{Performance measure}: the reward function for this kind of agent may be related to the accuracy of the classification task, i.e. the percentage of parts classified correctly.
+
+\item \emph{Environment}: the environment in which the robot operates is made of a conveyor belt to move the parts underneath the robot and a set of bins in which the robot has to place the parts according to their category.
+
+\item \emph{Actuators}: the robot acts on the environment thanks to a mechanical arm, capable of moving the parts from the belt to the correct bin.
+
+\item \emph{Sensors}: the agent senses the environment essentially through a camera, whose data are elaborated in order to detct the distinctive features of each class of parts.
+
+\end{itemize}
+
+\section{Question 2}
+
+An agent is defined \emph{rational} when, given the information it was able to gather from the perception of the environment and possibly its prior knowledge, it always acts on that environment aiming to achieve its defined goals. More formally, a rational agent is described by an \emph{agent function} $ f : \mathcal{P}^* \rightarrow \mathcal{A} $ such that, for each element of the input set $ \mathcal{P}^* $ (that is, for each finite sequence of percepts), selects from the output set $ \mathcal{A} $ an action aiming to maximize the expected value of its associated \emph{reward function}.
+
+An agent is defined \emph{autonomous} when it is able to perform its operations based only on the information it was able to gather and from which it was able to learn in the past, rather than relying on some sort of built-in knowledge.
+
+\section{Question 3}
+
+
+
+\end{document}
