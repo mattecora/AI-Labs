@@ -1,6 +1,8 @@
 \documentclass[letterpaper,headings=standardclasses]{scrartcl}
 
 \usepackage[margin=1in,includefoot]{geometry}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
 
 \title{Homework 1}
 \subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
@@ -52,6 +54,25 @@ An agent is defined \emph{autonomous} when it is able to perform its operations 
 
 \section{Question 3}
 
+The vacuum cleaner as presented implements a \emph{simple reflex} agent program, characterized by the fact that the action to take is determined by the sole analysis of the current percepts, ignoring the succession of older ones. In this case, the introduction of a \emph{NoOp} operation will have no benefit for the agent: in fact, the vacuum cleaner cannot remember whether the other square has already been cleaned or not. Lacking this possibility, the agent is forced to keep moving between $A$ and $B$, without the possibility of understanding that this behavior is not optimal. This derives directly from the partial observability of the vacuum cleaner environment, which does not allow the agent to perceive contemporarily the presence of dirt in both locations.
 
+A \emph{model-based reflex} agent would be a more suitable choice for this kind of environment; in this case, the \emph{internal state} information that the vacuum cleaner agent should maintain represents the dirt status in both locations. The behavior of this agent is described by the following algorithm:
+
+\begin{quote}
+\begin{algorithmic}
+
+\Function{Model-Based-Vacuum-Agent}{location,status}
+  \State $map[location] \gets status$
+  \If{$status = Dirty$} \Return $Suck$
+  \ElsIf{$location = A \wedge map[B] \neq Clean$} \Return $Right$
+  \ElsIf{$location = B \wedge map[A] \neq Clean$} \Return $Left$
+  \Else{} \Return $NoOp$
+  \EndIf
+\EndFunction
+
+\end{algorithmic}
+\end{quote}
+
+Given the known geometry of the environment, initially all squares will be set to an "undefined" state; at each iteration, the agent perceives its location and the dirt status, setting the appropriate value in the state variable $map$, then works as in the previous case, the only difference being that, if a location has already been considered for cleaning, it will not be considered again (its status in $map$ is set to \emph{Clean}). In fact, assuming that clean squares remain clean, once the status of a location is set to \emph{Clean}, it will never be changed afterwards, preventing the agent from passing there again. When all the locations have been cleaned, the agent will simply perform \emph{NoOp} actions, without needing to bounce back and forth between the two.
 
 \end{document}
