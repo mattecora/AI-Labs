@@ -3,6 +3,7 @@
 \usepackage[margin=1in,includefoot]{geometry}
 \usepackage{algorithmicx}
 \usepackage{algpseudocode}
+\usepackage{amssymb}
 
 \title{Homework 1}
 \subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
@@ -22,13 +23,13 @@ The environment in which the part-picking robot can possibly operate is describe
 
 \item \emph{Single-agent}: the part-picking robot does not interact, within its environment, with other agents, i.e. entities striving to maximize their reward functions. In fact, the robot simply interacts with the parts being classified, which are of course passive with respect to its actions.
 
-\item \emph{Stochastic}: the environment in which the robot works cannot be considered completely deterministic since unexpected events due to uneforeseen causes can occur. Examples of those include: breakdown of the conveyor belt, overturning of a bin.
+\item \emph{Stochastic}: the environment in which the robot works cannot be considered completely deterministic since the robot categorizes parts based on the probability they belong to a given class; due to the limited observability of the environment, errors may always occur, so the final state of the environment is not univoquely determined by the current one.
 
 \item \emph{Episodic}: the robot performs essentially a classification task, which is a notable example of a succession of atomic episodes, all of the same kind, which do not depend one on another. Each part is analyzed and classified in autonomy, before the robot moves to the next one.
 
-\item \emph{Dynamic}: the environment is dynamic if we suppose that the conveyor belt continues its operation, regardless of whether the robot is picking and classifying correctly the moved parts.
+\item \emph{Dynamic}: the environment is dynamic if we suppose that the conveyor belt is in continuous operation, regardless of whether the robot is picking and classifying correctly the moved parts or not (the environment evolves even without the intervention of the agent).
 
-\item \emph{Continuous}: in order to perform its operations, the robot has to continuously sense the environment and react accordingly to the arrival of new parts; as in the previous hypothesis, the conveyor belt is in fact in continuous operation and does not transition in a finite set of states.
+\item \emph{Continuous}: the environment is continuous since it does not present itself to the agent in a finite set of states: the conveyor belt is in fact in continuous operation and parts may be scattered around without a precise positioning.
 
 \end{itemize}
 
@@ -36,7 +37,7 @@ Having characterized the environment in which the part-picking robot operates, i
 
 \begin{itemize}
 
-\item \emph{Performance measure}: the reward function for this kind of agent may be related to the accuracy of the classification task, i.e. the percentage of parts classified correctly.
+\item \emph{Performance measure}: the performance measure for this kind of agent may be related to the accuracy of the classification task, i.e. the percentage of parts classified correctly.
 
 \item \emph{Environment}: the environment in which the robot operates is made of a conveyor belt to move the parts underneath the robot and a set of bins in which the robot has to place the parts according to their category.
 
@@ -48,15 +49,30 @@ Having characterized the environment in which the part-picking robot operates, i
 
 \section{Question 2}
 
-An agent is defined \emph{rational} when, given the information it was able to gather from the perception of the environment and possibly its prior knowledge, it always acts on that environment aiming to achieve its defined goals. More formally, a rational agent is described by an \emph{agent function} $ f : \mathcal{P}^* \rightarrow \mathcal{A} $ such that, for each element of the input set $ \mathcal{P}^* $ (that is, for each finite sequence of percepts), selects from the output set $ \mathcal{A} $ an action aiming to maximize the expected value of its associated \emph{reward function}.
+An agent is defined \emph{rational} when, given the information it was able to gather from the perception of the environment and possibly its prior knowledge, it acts on that environment aiming to achieve a defined goal. More formally, a rational agent is described by an \emph{agent function} $ f^* : \mathcal{P}^* \rightarrow \mathcal{A} $ such that, for each element of the input set $ \mathcal{P}^* $ (that is, for each finite sequence of percepts it has gathered from the environment), selects from the output set $ \mathcal{A} $ an action aiming to maximize the \emph{expected value} of its associated \emph{reward function}.
+
+It is important to underline that what a rational agent is trying to maximize is not the reward function itself, but instead its expected value; the rationality of an agent, in fact, is bounded by two factors:
+
+\begin{itemize}
+
+\item The agent has a limited knowledge of the world deriving from its current and past percepts: the selection of the action is therefore based on the percepts of the agent, even if they do not reflect the actual state of the world. In other words, no agent is \emph{omniscient}.
+\item The agent cannot predict the future, so there is no certainty that, even in case the best action is always chosen, its outcomes will turn out to be the expected ones. In other words, no agent is \emph{clairvoyant}. 
+ 
+\end{itemize}
+
+Therefore, an agent may simply try to predict the consequences of its actions and, based on the expected outcomes, select the one that may possibly yield the best results. In mathematical terms, if we denote with $r_t$ the value of the reward obtained at time $t$, a rational agent aims to maximize on a certain lifespan $T$ the expression:
+
+$$ \mathbb{E} \left[ \sum_{t=0}^{T} r_t \right] $$
+
+As a consequence of that, a rational agent is not the one that always does the \emph{right} thing; instead, it is the one that performs the actions that are \emph{more desirable} according to its performance measure and given its own limited perspective.
 
 An agent is defined \emph{autonomous} when it is able to perform its operations based only on the information it was able to gather and from which it was able to learn in the past, rather than relying on some sort of built-in knowledge.
 
 \section{Question 3}
 
-The vacuum cleaner as presented implements a \emph{simple reflex} agent program, characterized by the fact that the action to take is determined by the sole analysis of the current percepts, ignoring the succession of older ones. In this case, the introduction of a \emph{NoOp} operation will have no benefit for the agent: in fact, the vacuum cleaner cannot remember whether the other square has already been cleaned or not. Lacking this possibility, the agent is forced to keep moving between $A$ and $B$, without the possibility of understanding that this behavior is not optimal. This derives directly from the partial observability of the vacuum cleaner environment, which does not allow the agent to perceive contemporarily the presence of dirt in both locations.
+The vacuum cleaner as presented implements a \emph{simple reflex} agent program, characterized by the fact that the action to take is determined by the sole analysis of the current percepts, ignoring the succession of older ones. For this reason, in this case the introduction of a \emph{NoOp} operation will have no benefit for the agent: in fact, the vacuum cleaner cannot remember whether the other square has already been cleaned or not. Lacking this possibility, the agent is forced to keep moving between $A$ and $B$, only to realize continuously that the square is already clean. This derives directly from the partial observability of the vacuum cleaner environment, which does not allow the agent to perceive contemporarily the presence of dirt in both locations.
 
-A \emph{model-based reflex} agent would be a more suitable choice for this kind of environment; in this case, the \emph{internal state} information that the vacuum cleaner agent should maintain represents the dirt status in both locations. The behavior of this agent is described by the following algorithm:
+A \emph{model-based reflex} agent would be a more suitable choice for this kind of environment. In this case, the vaccum cleaner may maintain an \emph{internal state} information representing the dirt status in both locations, as observed the last time the agent passed on each location. Under the given assumptions, which describe the \emph{model} according to which the environment evolves, a simple program to implement such an agent is described by the following algorithm:
 
 \begin{quote}
 \begin{algorithmic}
@@ -73,6 +89,6 @@ A \emph{model-based reflex} agent would be a more suitable choice for this kind 
 \end{algorithmic}
 \end{quote}
 
-Given the known geometry of the environment, initially all squares will be set to an "undefined" state; at each iteration, the agent perceives its location and the dirt status, setting the appropriate value in the state variable $map$, then works as in the previous case, the only difference being that, if a location has already been considered for cleaning, it will not be considered again (its status in $map$ is set to \emph{Clean}). In fact, assuming that clean squares remain clean, once the status of a location is set to \emph{Clean}, it will never be changed afterwards, preventing the agent from passing there again. When all the locations have been cleaned, the agent will simply perform \emph{NoOp} actions, without needing to bounce back and forth between the two.
+The $map$ variable represents the state of the environment as previously described. Given the known geometry of the environment, initially all squares will be set to an "undefined" state; at each iteration, the agent first of all perceives its location and the dirt status, setting the appropriate value in the state variable. Then, it works as in the previous case, the only difference being that, if a location has already been considered for cleaning, it will not be considered again (its status in $map$ is set to \emph{Clean}, so the conditional statements are not executed). In fact, assuming that clean squares remain clean, once the status of a location is set to \emph{Clean}, it will never be changed afterwards, preventing the agent from passing there again. When all the locations will have been cleaned, the agent will simply perform \emph{NoOp} actions, without needing to bounce back and forth between the two locations.
 
 \end{document}
