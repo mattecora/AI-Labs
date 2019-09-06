@@ -26,11 +26,11 @@ The environment in which the part-picking robot can possibly operate is describe
 
 \item \emph{Stochastic}: the environment in which the robot works cannot be considered completely deterministic since it is a physical environment, in which unforeseen events may occur; for this reason, we cannot have the certainty that, even when the environment is correctly sensed and the right action is chosen, the actual final state of the environment will correspond to the expected one.
 
-\item \emph{Episodic}: the robot essentially carries out a classification task, which is implemented in a succession of atomic episodes, all of the same kind, which do not depend one on another. Each part is analyzed and classified in autonomy, before the robot moves to the next one.
+\item \emph{Episodic}: the robot essentially carries out a classification task, which is implemented in a succession of atomic episodes, all of the same kind, which do not depend one on another. Each part is analyzed and classified in isolation, before the robot moves to the next one.
 
 \item \emph{Dynamic}: the environment is dynamic since it evolves in autonomy, even without the intervention of the agent; for example, the conveyor belt is in continuous operation, regardless of whether the robot is picking and classifying correctly the parts or not.
 
-\item \emph{Continuous}: the environment is continuous both in time and in states; for instance, the conveyor belt is in continuous operation, the characteristics of the classified part vary with continuity and their location relative to the belt may not be fixed. Consequently, also the percepts (e.g. camera continuously shooting) and actions (e.g. adjustment of the trajectory of the mechanical arm) of the robot must vary with continuity.
+\item \emph{Continuous}: the environment is continuous both in time and in states; for instance, the conveyor belt is in continuous operation, the characteristics of the classified parts vary with continuity and their relative positioning the belt may not be precisely defined. Consequently, also the percepts (e.g. camera continuously shooting) and actions (e.g. adjustment of the trajectory of the mechanical arm) of the robot must vary with continuity.
 
 \end{itemize}
 
@@ -50,22 +50,25 @@ Having characterized the environment in which the part-picking robot operates, i
 
 \section{Question 2}
 
-An agent is defined \emph{rational} when, given the information it was able to gather from the perception of the environment and possibly its prior knowledge, it acts on that environment aiming to achieve a defined goal. More formally, a rational agent is described by an \emph{agent function} $ f^* : \mathcal{P}^* \rightarrow \mathcal{A} $ such that, for each element of the input set $ \mathcal{P}^* $ (that is, for each finite sequence of percepts it has gathered from the environment), selects from the output set $ \mathcal{A} $ an action aiming to maximize the \emph{expected value} of its associated \emph{reward function}. If we denote with $r_t$ the value of the reward obtained at time $t$, a rational agent aims to maximize on a certain lifespan $T$ the expression:
+An agent is defined \emph{rational} when, given the information it was able to gather from the perception of its environment and possibly its prior knowledge, it acts on the same environment in the way that makes it most likely to achieve a defined goal.
+
+Formally, a rational agent is described by an \emph{agent function} $ f^* : \mathcal{P}^* \rightarrow \mathcal{A} $ such that, for each element of the input set $ \mathcal{P}^* $ (that is, for each finite sequence of percepts collected from the environment), selects from the output set $ \mathcal{A} $ the most suitable action in order to maximize the \emph{expected value} of its associated \emph{reward function}. If we denote with $r_t$ the value of the reward obtained at time $t$, a rational agent aims to maximize on a certain lifespan $T$ the expression:
 
 $$ \mathbb{E} \left[ \sum_{t=0}^{T} r_t \right] $$
 
-It is important to underline that what a rational agent is trying to maximize is not the reward function itself, but instead its expected value; the rationality of an agent, in fact, is bounded by two factors:
+It is important to underline that the goal of a rational agent is not to maximize the reward function itself, but instead its expected value; the rationality of an agent, in fact, is bounded by two factors:
 
 \begin{itemize}
 
-\item The agent has a limited knowledge of the world deriving from its current and past percepts: the selection of the action is therefore based on the percepts of the agent, even if they do not reflect the actual state of the world. In other words, no agent is \emph{omniscient}.
-\item The agent cannot predict the future, so there is no certainty that, even in case the best action is always chosen, its outcomes will turn out to be the expected ones. In other words, no agent is \emph{clairvoyant}. 
+\item The agent has a limited knowledge of the world deriving from its current and past percepts: the selection of the action is therefore based on the percepts of the agent, even if they do not reflect the actual state of the world (no agent is \emph{omniscient}).
+
+\item The agent cannot predict the future, so there is no certainty that, even in case the best action is always chosen, its outcomes will turn out to be the expected ones (no agent is \emph{clairvoyant}). 
  
 \end{itemize}
 
 Therefore, an agent may simply try to predict the consequences of its actions and, based on the expected outcomes, select the one that may possibly yield the best results. As a consequence, a rational agent is not the one that always does the \emph{right} thing; instead, it is the one that performs the actions that are \emph{most desirable} according to its performance measure and given its limited knowledge of the environment.
 
-An agent is defined \emph{autonomous} when it is able to perform its operations based only on the information it was able to gather and from which it was able to learn in the past, rather than relying on some sort of built-in knowledge.
+An agent is defined \emph{autonomous} when it is able to perform its operations based only on the information it was able to gather from the environment, rather than relying on some sort of built-in knowledge. Autonomy should be the goal of any rational agent and is achieved through a \emph{learning process}, which, starting from the agent's percepts, transforms them into useful knowledge, making it more adapt to work in its environment.
 
 \section{Question 3}
 
@@ -77,7 +80,7 @@ Lacking this possibility, the agent is forced to keep moving between $A$ and $B$
 
 \subsection{Sub-question b}
 
-A \emph{model-based reflex} agent would be a more suitable choice for this kind of environment. In this case, the vaccum cleaner may maintain an \emph{internal state} information representing the dirt status in both locations, as observed the last time the agent passed on each location. Under the given assumptions, which constitute the \emph{model} of the world according to which the environment evolves both autonomously and consequently to the agent's actions, a simple set of \emph{condition-action rules} to implement such an agent is described by the following algorithm:
+A \emph{model-based reflex} agent would be a more suitable choice for this kind of environment. In this case, the vaccum cleaner may maintain an \emph{internal state} information representing the dirt status in both locations, as observed on the last time the agent passed on each location. Under the given assumptions, which constitute the \emph{model} of the world according to which the environment evolves both autonomously and consequently to the agent's actions, a simple set of \emph{condition-action rules} to implement such an agent is described by the following algorithm:
 
 \begin{quote}
 \begin{algorithmic}
@@ -94,9 +97,9 @@ A \emph{model-based reflex} agent would be a more suitable choice for this kind 
 \end{algorithmic}
 \end{quote}
 
-The $map$ variable represents the state of the environment as previously described. Given the known geometry of the environment, initially all squares are set to an "undefined" state; at each iteration, the agent first of all perceives its location and the dirt status, setting the appropriate value in the state variable. Then, it works as in the previous case, the only difference being that, if a location has already been considered for cleaning, it will not be considered again (its status in $map$ is set to \emph{Clean}, so the conditional statements are not executed). In fact, assuming that clean squares remain clean, once the status of a location is set to \emph{Clean}, it will never be changed afterwards, preventing the agent from passing there again. When all the locations will have been cleaned, the agent will simply perform \emph{NoOp} actions, without needing to bounce back and forth between the two locations.
+The $map$ variable represents the known characteristics of the environment as previously described. Given the known geometry of the environment, initially all squares are set conservatively to the $Dirty$ state; at each iteration, the agent first of all perceives its location and the dirt status, setting the appropriate value in the state variable. Then, it works as in the previous case, the only difference being that, if a location has already been considered for cleaning, it will not be considered again: assuming that clean squares remain clean, once the status of a location is set to \emph{Clean}, it will never be changed afterwards, preventing the agent from passing there again. When all the locations will have been cleaned, the agent will simply perform \emph{NoOp} actions, without needing to bounce back and forth between the two locations.
 
-Using the described program, the obtained agent is indeed rational. In fact, according to the first assumption, the reward function that the agent has to maximize may be formalized as:
+Using the proposed program, the obtained agent is indeed rational. In fact, according to the first assumption, the reward function that the agent has to maximize may be formalized as:
 
 $$ \sum_{t=0}^{1000} \left( r_{A,t} + r_{B,t} \right) $$
 
@@ -108,20 +111,20 @@ Its expected value for each time step $t$ and each square $S$ can be computed as
 
 $$ \mathbb{E} \left[ r_{S,t} \right] = 1 * \mathbb{P} \left[ S \text{ is clean at time } t \right] + 0 * \mathbb{P} \left[ S \text{ is not clean at time } t \right] $$
 
-Under the hypothesis that clean squares remain clean and depending on the values stored in the state variable $map$, there are two possible outcomes:
+Under the hypothesis that clean squares remain clean and based only on the observations of the agent, there are two possible values for the expected value of $r_{S,t}$:
 
 \begin{itemize}
 
-\item $map[S] = Clean$ at time $t$: if the agent knows that $S$ is clean at time $t$, then:
+\item $map[S]$ is set to $Clean$ at time $t$:
 
 $$ \mathbb{E} \left[ r_{S,t} \right] = 1 * 100\% + 0 * 0\% = 1 $$
 
-\item $map[S] \ne Clean$ at time $t$: if the agent does not know that $S$ is clean at time $t$, then:
+\item $map[S]$ is set to $Dirty$ at time $t$:
 
 $$ \mathbb{E} \left[ r_{S,t} \right] = 1 * 0\% + 0 * 100\% = 0 $$
 
 \end{itemize}
 
-As long as there are squares which contain dirt, the vacuum cleaner will act in a way that, in the following iterations, an additional point will expectedly be awarded, moving to the (supposedly) dirty location and sucking out dirt. After all squares have been considered and possibly cleaned, the agent is bound to perform no-operations, since it cannot expect to achieve a greater reward in doing any additional action.
+As long as there are squares which are supposed to contain dirt, the vacuum cleaner will act in a way that, in the following iterations, an additional point will expectedly be awarded, moving to the (assumedly) dirty location and sucking out dirt. After all squares have been considered and possibly cleaned, the agent is bound to perform no-operations, since it cannot expect to achieve a greater reward in doing any additional action.
 
 \end{document}
