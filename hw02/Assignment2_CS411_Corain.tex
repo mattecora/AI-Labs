@@ -1,0 +1,105 @@
+\documentclass[letterpaper,headings=standardclasses]{scrartcl}
+
+\usepackage[margin=1in,includefoot]{geometry}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Homework 2}
+\subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
+\author{Matteo Corain 650088272}
+
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+
+A \emph{goal-based agent} is a type of agent for which the decision to take in each situation, in terms of actions to be performed, cannot be described by a static set of rules, like in a \emph{reflex agent} (either \emph{simple} or \emph{model-based}). In fact, the selection of the correct action depends not only on the state and the model of the environment, but also on the specific goal of the agent, which can be different among different agents of the same type.
+
+In order to achieve their objective (in case it is non-trivial, requiring more than a single action to be fulfilled), goal-based agents need to introduce a form of \emph{planning} of the future, instead of focusing only on the present. An essential precondition to planning is that the environment the agent works in is somehow sequential, i.e. the actions the agent has taken in the past somehow affect the reward it is going to receive for the subsequent ones.
+
+A goal-based agent acts in a way that, sooner or later, its goal will finally be achieved; in case there are many alternative ways for fulfilling it, this may in general lead to sub-optimal behaviors, even in the short term all the decision are taken according to a local optimality principle. A \emph{utility-based agent} tackles with this problem by associating a score, called \emph{utility}, to each alternative solution it could imagine to achieve the goal. This is done through the evaluation of a so-called \emph{utility function}, a sort of internal estimation (based on the limited knowledge of the agent) of the performance measure of the agent.
+
+Once the utility for each possible solution has been estimated, the agent will act accordingly to the one that yields the greatest expected return. This means that it could happen that, in the short term, decisions taken may be sub-optimal, but in the end they will make up for the best overall solution. This is particularly evident when the agent is required to fulfill conflicting goals, for which an utility-based agent will always try to find the solution able to yield the best reward.
+
+\section{Question 2}
+
+\subsection{Fully/partially observable}
+
+An environment is classified as fully observable if the agent is equipped with sensors capable to perceive at any point in time all the aspects of the environment that are relevant for the selection of the action to be performed; otherwise, the environment is classified as partially observable.
+
+In this case, the variables of interest for the thorough description of the state of the environment are represented by:
+
+\begin{itemize}
+
+\item The \emph{location} of the robot;
+\item The \emph{presence of a star} in each location the robot can pass through.
+
+\end{itemize}
+
+Supposing to associate each location with a natural number $n \in [1; 12]$, the state $S$ of the environment is described in formal terms by a set of $n$-dimensional vectors, with $n = 13$, in which:
+
+\begin{itemize}
+
+\item The first component, $s_1 \in [1;12]$, represents the square the robot is currently in;
+\item All the following components, $s_i \in \{\text{Star}; \text{No-Star}\}, i = 2 ... 13$, represent the presence or absence of a star in the $(i-1)$-th square.
+
+\end{itemize}
+
+If the robot is equipped with a set of sensors capable of perceiving all the thirteen components that describe the environment's state at once, then the environment is \emph{fully observable}. If we consider instead a much simpler robot, capable for example of sensing its location and the presence of a star only within a more limited number of squares from its position, then the environment has to be considered \emph{partially observable}.
+
+\subsection{Deterministic/stochastic}
+
+An environment is classified as deterministic if it is possible to precisely state what the next state of the environment will be, given the current state and the action performed by the agent; if this is not possible, then the environment is classified as stochastic.
+
+In this case, conceptually speaking, once that the state of the environment and the action the robot is going to perform are known, it is possible to infer what the next state of the environment will be. In other words, from a theoretical point of view, this environment does not present any source of uncertainty: it is very clear what the next state will be when the agent will perform its actions; thus, this environment has to be considered \emph{deterministic}.
+
+However, if we suppose to implement the described system into a real-world object, then a lot of different sources of uncertainty would be introduced: for example, the robot may find unexpected obstacles on its way or may broke itself, preventing it from modifying the state of the environment in the expected way. Therefore, a physical implementation of the described environment has to be considered \emph{stochastic}.
+
+\subsection{Dynamic/static}
+
+An environment is classified as dynamic if it can change its state without the direct intervention of the agent; otherwise, the environment is classified as static.
+
+In this case, there are many ways in which the environment could change without the intervention of the agent; for example, stars may be added or removed at any time, or maybe the lights may turn off at regular intervals preventing the agent to perceive their location. If we consider those factors in the description of the environment, then it has to be considered \emph{dynamic}; if instead we suppose that the environment for the robot is given and no external factor can act on it, then it has to be considered \emph{static}.
+
+\subsection{Episodic/sequential}
+
+An environment is classified as episodic when the actions that the agent performed in the past do not affect in any way its decision for the following one; if instead the sequence of past actions influences the decision of the agent, then the environment is classified as sequential.
+
+The described case is a typically \emph{sequential} scenario: the ability of the robot to move in the environment, in fact, impacts on its future decisions because it has an effect on its location. In order to pick up the stars, the robot has to move in a way that allows it to reach the location in which the desired object is present; if the robot behaves correctly, this change of location will make it closer to the star and drive the following decision, so that in the end it will be able to acheive its goal through a precise sequence of actions.
+
+\subsection{Known/unknown}
+
+An environment is classified as known when the agent knows the rules according to which this environment works, which can be used to predict the outcome of the different actions it can take; if the agent (at least initially) lacks this knowledge, then the environment is classified as unknown.
+
+In this case, we can suppose that the described environment works according to the following set of rules:
+
+\begin{itemize}
+
+\item The robot can only move inside a 3x4 matrix of locations;
+\item If the robot finds itself in a spot where a star is present, then it can pick it up.
+
+\end{itemize}
+
+If the robot knows this boundaries to the actions it can choose from the beginning, for example because it was programmed in a way that enforces the fulfillment of those rules, then the described environment has to be considered \emph{known}. Instead, if the robot is initially unaware of the presence of these rules, which will be probably discovered during its operation through a learning process, then the described environment has to be considered initially \emph{unknown}.
+
+\subsection{Continuous/discrete}
+
+An environment is classified as continuous if the state of the environment, the time, the percepts and the actions of the agent are described by continuous variables; otherwise, the environment is classified as discrete.
+
+In this case, we have the following:
+
+\begin{itemize}
+
+\item The state of the environment is described by a discrete variable, represented by a 13-dimensional vector as mentioned before;
+\item The time may be handled both in a discrete way (e.g. the robot perceives and acts only at defined instants of time) or in a continuous way (e.g. the robot continuously perceives the environment and acts accordingly);
+\item The percepts of the agent are described again by a discrete variable, represented by a vector whose components depend on the sensory capabilities of the robot;
+\item The actions of the agent may be described both in a discrete way (if we suppose that all actions are atomic, either performed completely or not performed, and distances are measured in multiples of the dimension of a square) or in a continuous way (if we drop the previous hypothesis, e.g. the robot may perform an action only partially or move for a distance that is not multiple of the dimension of a square).
+
+\end{itemize}
+
+If we consider both time and actions to be handled in a discrete way, then the described environment has to be classified as \emph{discrete} (it is not described by any continuous variable); otherwise, it has to be classified as \emph{continuous} (at least a continuous variable is necessary for its description).
+
+\end{document}
