@@ -1,0 +1,51 @@
+\documentclass[letterpaper,headings=standardclasses]{scrartcl}
+
+\usepackage[margin=1in,includefoot]{geometry}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Homework 3}
+\subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
+\author{Matteo Corain 650088272}
+
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+
+\subsection{Atomic representation}
+
+An \emph{atomic representation} of an environment is characterized by the fact that each possible state in which the environment can be is described by a single item (for example, a name that uniquely identifies the particular state), without any internal structure. Externally, we may know how states are connected to each other and how to transition from a  state to another, but we do not have any information on how the state is internally structured; in other words, each state is represented as a “black box”, with the only property of being uniquely identifiable.
+
+Atomic representations are very simple to manage, but they have a very limited expressiveness. For this reason, hey cannot be applied in complex environments, in which we have to account for multiple factors; in fact, in those case we would need to keep track of a new state for each minimal variation of any of those, making the representation of the state space very convoluted.
+
+\subsection{Factored representation}
+
+By using a \emph{factored representation}, each state of the environment is characterized by a set of \emph{variables}, each with its own \emph{value}. In this way, the environment is described at a much finer level of detail, splitting up the characterization of the different, independent factors that identify its state into a set of distinct properties. Additionally, different states to share the same values for certain variables (we can tell that two states are somehow similar, while in the previous case we can only say that they are different).
+
+Factored representations are more expressive than atomic representations, making them much more natural, convenient and concise for the usage with large state spaces. On the other hand, they require additional information to be known from the environment: if we represent an environment in a factored way, in fact, we must be able to list all the relevant variables and the way they are captured and used upfront.
+
+\subsection{Structured representation}
+
+In a \emph{structured representation}, the environment is described in terms of \emph{objects}, each of which shares a set of variables with the others belonging to the same class; interactions between objects belonging to the same or to different classes are represented by means of \emph{relationships}. Object properties and relationships are dynamic: they do not need to be identified upfront, but may be defined and added on-the-fly if needed.
+
+Structured representations are even more expressive than factored representations since they can take describe the dynamicity of the environment structure in a very concise way. On the other hand, this kind of representation may become very complex, requiring agents to perform more expensive computations to make an efficient use of the collected information.
+
+\section{Question 2}
+
+\subsection{Atomic representation}
+
+
+
+\subsection{Factored representation}
+
+
+
+\subsection{Structured representation}
+
+
+
+\end{document}
