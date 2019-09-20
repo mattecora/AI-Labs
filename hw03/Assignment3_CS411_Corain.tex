@@ -26,7 +26,7 @@ Atomic representations are very simple to manage, but they have a very limited e
 
 By using a \emph{factored representation}, each state of the environment is characterized by a set of \emph{variables}, each with its own \emph{value}. In this way, the environment is described at a much finer level of detail, splitting up the characterization of the different, independent factors that identify its state into a set of distinct properties. Additionally, different states to share the same values for certain variables (we can tell that two states are somehow similar, while in the previous case we can only say that they are different).
 
-Factored representations are more expressive than atomic representations, making them much more natural, convenient and concise for the usage with large state spaces. Moreover, they can be useful to represent the uncertainty on the current state that is characteristic of the partially observable environments: unobserved variables may in fact simply treated as null values and disregarded for the selection of the next action. On the other hand, they require additional information to be known from the environment: if we represent an environment in a factored way, in fact, we must be able to list all the relevant variables and the way they are captured and used upfront.
+Factored representations are more expressive than atomic representations, making them much more natural, convenient and concise for the usage with large state spaces. Moreover, they can be useful to represent the uncertainty on the current state that is characteristic of partially observable environments: unobserved variables may in fact simply treated as “null” values and disregarded for the selection of the next action. On the other hand, they require additional information to be known from the environment: if we represent an environment in a factored way, in fact, we must be able to list all the relevant variables and the way they are captured and used upfront.
 
 \subsection{Structured representation}
 
@@ -46,7 +46,7 @@ Supposing that the state of the environment depends on 13 independent factors, n
 
 $$ n_s = 12 * 2^{12} = 49152 $$
 
-This derives from the fact that we have 12 possible locations for the robot and $2^{12}$ possible arrangements of stars on the terrain. Once that states have been defined, we need to define the relationships among them, which describe how the agent is able to transition from a state to another. For example, state $s_x$ may be connected to the following set of states:
+This derives from the fact that we have 12 possible locations for the robot and $2^{12}$ possible arrangements of stars on the terrain. Once that states have been defined, we need to define the relationships among them, which describe how the agent is able to transition from a state to another. For example, state $s_x$ is connected to the following set of states:
 
 \begin{itemize}
 
@@ -58,9 +58,7 @@ This derives from the fact that we have 12 possible locations for the robot and 
 
 \end{itemize}
 
-It is important to point out that the agent, in this case, has no notion of the different factors that characterize the environment; it is only able to determine somehow what state it is in (be it $s_x$, $s_y$, or any other).
-
-Given the size of the state space, this representation is not very convenient as it would generate a very large network of relationships that the agent would need to store somehow to be used for the selection of the action to take. Nonetheless, this representation is very simple to use since the agent does not have to worry about the structure of the environment: if it can know what the current state is, then it can simply understand what actions it can take to transition towards the one that yields the best expected reward (just follow the tree of relationships).
+It is important to point out that the agent, in this case, has no notion of the different factors that characterize the environment; it is only able to determine somehow what state it is in. Given the size of the state space, this representation is not very convenient as it would generate a very large network of relationships that the agent would need to store somehow to be used for the selection of the action to take. Nonetheless, it is very simple to use: if the agent knows what the current state is (or infer it from its percepts), then it can simply understand what actions it can take to transition towards the one that yields the best expected reward (just following the tree of relationships).
 
 \subsection{Factored representation}
 
@@ -84,7 +82,7 @@ In this representation, each distinct state is identified by a unique combinatio
 
 \end{itemize}
 
-After having defined the structure of the environment, we have to specify how the different actions of the agent affect the representation of the state; in general, each action will have an effect only on a subset of the variables of interest. These effects are not codified, as in the atomic case, in a state graph that the robot can traverse; instead, the agent function should implement some form of reasoning to analyze the possibilities of acting to modify the state in the desired way. In this specific case, the robot may modify the state of the environment in the following ways:
+After having defined the structure of the environment, we have to specify how the different actions of the agent affect the representation of the state; in general, each action will have an effect only on a subset of the variables of interest. These effects are not codified, as in the atomic case, in a state graph that the robot can traverse; instead, the agent function should implement some form of reasoning to analyze the possibilities of acting to modify the state in the desired way. In this case, the robot may modify the state of the environment in the following ways:
 
 \begin{itemize}
 
@@ -94,13 +92,11 @@ After having defined the structure of the environment, we have to specify how th
 
 \end{itemize}
 
-It is worth mentioning that not all those variables may be captured at once by the agent; the environment may not, in fact, be fully observable. In this case, a subset of those variables may be simply assigned to a “null” value and disregarded for the selection of the action to take.
-
-This representation is way more manageable (in terms of space) with respect to the state space graph that is generated from an atomic representation; in fact, the agent has to memorize only the thirteen variables of interest to fully determine the state of the environment. As a drawback, this representation requires more thinking from the robot to decide what the next action to take is going to be, since it needs to analyze all the different characteristics of the environment (in the previous case, given the current state, it is immediate to know to which state we can go to, we just need to follow the paths in the state graph). Moreover, exactly as in the atomic case, this representation of the state is very specific to the particular environment we are considering; for example, if we moved the robot in an environment using a different grid of locations, then this representation would not have been appropriate. 
+This representation is way more manageable (in terms of space) with respect to the state space graph that is generated from an atomic representation; in fact, the agent has to memorize only the thirteen variables of interest to fully determine the state of the environment. As a drawback, this representation requires more thinking from the robot to decide what the next action to take is going to be, since it needs to analyze all the different characteristics of the environment. Moreover, exactly as in the atomic case, this representation of the state is very specific to the particular environment we are considering; for example, if we moved the robot in an environment using a different grid of locations, then this representation would not have been appropriate. 
 
 \subsection{Structured representation}
 
-If we represent the robot’s environment using the structured approach, we have to identify a set of objects, belonging to different classes, and the relationships using which they interact with each other. In this environment, the following objects may be identified:
+If we represent the robot’s environment using the structured approach, we have to identify a set of objects and the relationships using which they interact with each other. In this environment, the following objects may be identified:
 
 \begin{itemize}
 
@@ -108,7 +104,7 @@ If we represent the robot’s environment using the structured approach, we have
 
 \item The \emph{stars}, which represent the objects the agent is willing to pick up;
 
-\item The \emph{squares}, which represent a unit of location within the environment.
+\item The \emph{squares}, which represent a unit of location.
 
 \end{itemize}
 
@@ -122,7 +118,7 @@ The three entities interact with each other using a complex set of relationships
 
 \end{itemize}
 
-Each state is represented by a specific set of objects connected by a specific set of relationships. For example, in the presented case, the current state is described by the following set of objects and relationships:
+Using this representation, each state is uniquely identified by a specific set of objects connected by a specific set of relationships. For example, in the presented case, the current state is described by the following set of objects and relationships:
 
 \begin{itemize}
 
@@ -141,6 +137,6 @@ With this kind of representation, the actions the agent can take are used to mod
 
 \end{itemize}
 
-This kind of representation is the most general of all, since the objects and the relationships among objects can be dynamically modified if needed; for example, this representation is easily adaptable to the case in which the robot that is moved into an environment with a different size, or in which it can collect different kinds of objects. It is also very compact (we just need to store the current set of objects and relationships) and extensible (it is straightforward to add new objects or relationships). On the other hand, it is the most difficult to process, since the information the robot may gather at different points of time are complex and changing, requiring proper interpretation.
+This kind of representation is the most general of all, since the objects and the relationships among objects can be dynamically modified if needed; for example, this representation is easily adaptable to the case in which the robot that is moved into an environment with a different size, or in which it can collect different kinds of objects. It is also very compact (we just need to store the current set of objects and relationships), extensible (it is straightforward to add new objects or relationships) and readable (relationships are expressed in quasi-natural language). On the other hand, it is the most difficult to process, since the information the robot may gather at different points of time are complex and changing, requiring proper interpretation.
 
 \end{document}
