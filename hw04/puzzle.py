@@ -13,7 +13,7 @@ def parse_state(input_string):
     return [int(input_string.strip().split(" ")[i]) for i in range(16)]
 
 def goal_test(node):
-    return node.state[0:15] == sorted(node.state[0:15])
+    return node.state == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0]
 
 def bfs_search(initial_state, time_limit):
     # Initialize the frontier with the initial state
@@ -23,20 +23,16 @@ def bfs_search(initial_state, time_limit):
     visited = []
 
     # Initialize additional parameters
-    start_time = time()
     expansions = 0
+    start_time = time()
 
-    while time() - start_time < time_limit:
-        # If the frontier is empty, then we have no solution
-        if len(frontier) == 0:
-            return False, False, False
-        
+    while len(frontier) > 0 and time() - start_time < time_limit:
         # Get a node from the front
         node = frontier.pop(0)
 
         # Check if the goal has been reached
         if goal_test(node):
-            return node, time() - start_time, expansions
+            return node.path[1:] + [node], expansions, time() - start_time
         
         # Otherwise, expand the node and add all to the frontier
         frontier.extend(expand(node, visited))
@@ -54,7 +50,7 @@ def expand(node, visited):
     successors = []
 
     # Compute possible actions and states
-    actions, states = successor_function(node.state)
+    actions, states = get_successors(node.state)
 
     for i in range(len(actions)):
         # If the state has already been visited, discard
@@ -66,7 +62,7 @@ def expand(node, visited):
 
     return successors
 
-def successor_function(state):
+def get_successors(state):
     actions = []
     states = []
     
@@ -127,13 +123,13 @@ def successor_function(state):
 initial_state = parse_state(input("Input initial state: "))
 
 # Run the algorithm
-node, elap_time, expansions = bfs_search(initial_state, 30)
+path, expansions, elap_time = bfs_search(initial_state, 30)
 
 # Print results
-if node != False:
-    print("Moves: {}".format([n.action for n in node.path[1:] + [node]]))
+if path != False:
+    print("Moves: {}".format([n.action for n in path]))
     print("Number of nodes expanded: {}".format(expansions))
-    print("Time taken (seconds): {}".format(elap_time))
+    print("Time taken (seconds): {:.6}".format(elap_time))
     print("Memory used (bytes): {}".format(Process().memory_info().rss))
 else:
     print("Solution not found.")
