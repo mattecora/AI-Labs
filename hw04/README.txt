@@ -14,8 +14,14 @@
 - Run script puzzle.py using the Python interpreter:
     > python puzzle.py
 
+- Input the size of the puzzle (length of the side, N for a NxN puzzle):
+    > Input puzzle dimension: 4 (15-puzzle)
+
 - Input the initial state as a space-separated integer list:
     > Input initial state: 1 0 2 4 5 7 3 8 9 6 11 12 13 10 14 15
+
+- Input the maximum time limit for unsolvable states (in seconds):
+    > Input time limit: 30
 
 - If the initial state is solvable, then results are shown:
     > Moves: ['R', 'D', 'L', 'D', 'D', 'R', 'R']

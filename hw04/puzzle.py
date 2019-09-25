@@ -20,7 +20,7 @@ class Puzzle:
         try:
             size = int(input("Input puzzle dimension: "))
             input_string = input("Input initial state: ")
-            initial_state = [int(input_string.strip().split(" ")[i]) for i in range(16)]
+            initial_state = [int(input_string.strip().split(" ")[i]) for i in range(size ** 2)]
             time_limit = float(input("Input time limit: "))
             return cls(size, initial_state, time_limit)
         except Exception:
@@ -128,17 +128,20 @@ class Puzzle:
 
         return actions, states
 
-# Instantiate solver
-puzzle = Puzzle.from_console()
+if __name__ == "__main__":
+    # Instantiate solver
+    puzzle = Puzzle.from_console()
+    if puzzle == False:
+        exit()
 
-# Run the solver
-path, expansions, elap_time, delta_mem = puzzle.solve_bfs()
+    # Run the solver
+    path, expansions, elap_time, delta_mem = puzzle.solve_bfs()
 
-# Print results
-if path != False:
-    print("Moves: {}".format([n.action for n in path]))
-    print("Number of nodes expanded: {}".format(expansions))
-    print("Time taken (seconds): {:.6}".format(elap_time))
-    print("Memory used (bytes): {}".format(delta_mem))
-else:
-    print("Solution not found.")
+    # Print results
+    if path != False:
+        print("Moves: {}".format([n.action for n in path]))
+        print("Number of nodes expanded: {}".format(expansions))
+        print("Time taken (seconds): {:.6}".format(elap_time))
+        print("Memory used (bytes): {}".format(delta_mem))
+    else:
+        print("Solution not found.")
