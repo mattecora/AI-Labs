@@ -15,6 +15,18 @@ class Puzzle:
         self.initial_state = initial_state
         self.time_limit = time_limit
     
+    @classmethod
+    def from_console(cls):
+        try:
+            size = int(input("Input puzzle dimension: "))
+            input_string = input("Input initial state: ")
+            initial_state = [int(input_string.strip().split(" ")[i]) for i in range(16)]
+            time_limit = float(input("Input time limit: "))
+            return cls(size, initial_state, time_limit)
+        except Exception:
+            print("Invalid input.")
+            return False
+
     def solve_bfs(self):
         # Initialize parameters
         expansions = 0
@@ -35,34 +47,27 @@ class Puzzle:
             if self.goal_test(node):
                 return node.path[1:] + [node], expansions, time() - start_time, Process().memory_info().rss - start_mem
             
-            # Otherwise, expand the node and add all to the frontier
-            frontier.extend(self.expand(node, visited))
+            if not any([node.state == other for other in visited]):
+                # Mark the current state as already visited
+                visited.append(node.state)
 
-            # Mark the current state as already visited
-            visited.append(node.state)
+                # Otherwise, expand the node and add all to the frontier
+                frontier.extend(self.expand(node))
 
-            # Increment number of expanded nodes
-            expansions = expansions + 1
+                # Increment number of expanded nodes
+                expansions = expansions + 1
         
         return False, False, False, False
 
     def goal_test(self, node):
         return node.state == list(range(1, self.size ** 2)) + [0]
 
-    def expand(self, node, visited):
-        # Initialize empty successors list
-        successors = []
-
+    def expand(self, node):
         # Compute possible actions and states
         actions, states = self.get_successors(node.state)
 
-        for i in range(len(actions)):
-            # If the state has already been visited, discard
-            if any([states[i] == other for other in visited]):
-                continue
-
-            # Otherwise, create new node
-            successors.append(Node(node.path + [node], states[i], actions[i], node.depth + 1, node.cost + 1))
+        # Create new nodes
+        successors = [Node(node.path + [node], states[i], actions[i], node.depth + 1, node.cost + 1) for i in range(len(actions))]
 
         return successors
 
@@ -124,8 +129,7 @@ class Puzzle:
         return actions, states
 
 # Instantiate solver
-input_string = input("Input initial state: ")
-puzzle = Puzzle(4, [int(input_string.strip().split(" ")[i]) for i in range(16)], 30)
+puzzle = Puzzle.from_console()
 
 # Run the solver
 path, expansions, elap_time, delta_mem = puzzle.solve_bfs()

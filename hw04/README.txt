@@ -45,10 +45,10 @@ integer elements;
 - The cost of the path that reaches that node (in this case, it is equal to the 
 depth: each move counts as a single increment in the path cost).
 
-The Puzzle class is instantiated given the size of the "side" of the puzzle (4 
-in this case), the initial state (parsed from the command line through a list 
-comprehension to process the string input) and the maximum amount of time for 
-which the search algorithm may run.
+The Puzzle class is instantiated given the size of the "side" of the puzzle, 
+the initial state (parsed from the command line through a list comprehension to 
+process the string input) and the maximum amount of time for which the search 
+algorithm may run.
 
 The breadth-first search algorithm is implemented in the solve_bfs() method of 
 the Puzzle class. This method initializes a set of parameters, namely the 
@@ -74,17 +74,17 @@ reach the solution (stored in the path attribute of the Node class) appending
 to it the current node, the number of expansions, the difference with the start 
 time and the difference with the start memory (in this way, we account only for 
 time and memory effectively needed to run the algorithm);
-- If the node state is not a goal, it proceeds to extend the frontier list by 
-adding at the end the nodes generated from the expansion of the current node, 
-which are obtained through the expand() method; finally, it inserts the node 
-state into the visited list and increments the number of expanded nodes.
+- If the node state is not a goal and has not already been visited, it proceeds 
+to insert the state into the visited list and extend the frontier by adding at 
+the end the nodes generated from the expansion of the current node, which are 
+obtained through the expand() method; finally, it increments the counter of the 
+expanded nodes.
 
 The expand() method receives as parameters a node and the list of visited 
 states and returns a list of nodes that are reachable via the given node. Those 
 are generated starting from the list of actions and of the corresponding final 
 states that can be taken from the given node, computed via get_successors(). In 
-particular, for each action, the method checks whether its associated final 
-state has already been visited; if not, it appends to the successors list a new 
+particular, for each action, the method appends to the successors list a new 
 node, characterized by:
 
 - A path that is the current node's path, plus the current node;
