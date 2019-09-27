@@ -25,7 +25,6 @@ class Puzzle:
             return cls(size, initial_state, time_limit)
         except Exception:
             print("Invalid input.")
-            return False
 
     def solve_bfs(self):
         # Initialize parameters
@@ -47,6 +46,7 @@ class Puzzle:
             if self.goal_test(node):
                 return node.path[1:] + [node], expansions, time() - start_time, Process().memory_info().rss - start_mem
             
+            # Check that the state has not already been visited
             if not any([node.state == other for other in visited]):
                 # Mark the current state as already visited
                 visited.append(node.state)
@@ -60,13 +60,14 @@ class Puzzle:
         return False, False, False, False
 
     def goal_test(self, node):
+        # Check if it is a list of ordered integers, terminated by 0
         return node.state == list(range(1, self.size ** 2)) + [0]
 
     def expand(self, node):
         # Compute possible actions and states
         actions, states = self.get_successors(node.state)
 
-        # Create new nodes
+        # Create successor nodes
         successors = [Node(node.path + [node], states[i], actions[i], node.depth + 1, node.cost + 1) for i in range(len(actions))]
 
         return successors
@@ -131,7 +132,7 @@ class Puzzle:
 if __name__ == "__main__":
     # Instantiate solver
     puzzle = Puzzle.from_console()
-    if puzzle == False:
+    if puzzle is None:
         exit()
 
     # Run the solver
