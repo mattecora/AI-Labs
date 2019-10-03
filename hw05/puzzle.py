@@ -10,10 +10,11 @@ class Node:
         self.cost = cost
 
 class Puzzle:
-    def __init__(self, size, initial_state, time_limit):
+    def __init__(self, size, initial_state, time_limit, use_recursion):
         self.size = size
         self.initial_state = initial_state
         self.time_limit = time_limit
+        self.use_recursion = use_recursion
     
     @classmethod
     def from_console(cls):
@@ -22,11 +23,12 @@ class Puzzle:
             input_string = input("Input initial state: ")
             initial_state = [int(input_string.strip().split(" ")[i]) for i in range(size ** 2)]
             time_limit = float(input("Input time limit: "))
-            return cls(size, initial_state, time_limit)
+            use_recursion = input("Use recursion (Y/n)? ") != 'n'
+            return cls(size, initial_state, time_limit, use_recursion)
         except Exception:
             print("Invalid input.")
     
-    def solve_ids(self, recursive=True):
+    def solve_ids(self):
         # Initialize parameters
         limit = 0
         result = False
@@ -36,10 +38,10 @@ class Puzzle:
 
         while time() - start_time < self.time_limit:
             # Run a depth-limited search
-            if recursive:
+            if self.use_recursion:
                 result, partial_exp = self.solve_dls_rec(Node([], self.initial_state, None, 0, 0), 0, limit, [])
             else:
-                result, partial_exp = self.solve_dls(limit)
+                result, partial_exp = self.solve_dls_iter(limit)
             
             # Update number of expansions
             expansions = expansions + partial_exp
@@ -80,8 +82,7 @@ class Puzzle:
         
         return False, expansions
     
-    
-    def solve_dls(self, depth_limit):
+    def solve_dls_iter(self, depth_limit):
         # Initialize parameters
         expansions = 0
 
@@ -112,7 +113,6 @@ class Puzzle:
         
         return False, expansions
     
-
     def goal_test(self, node):
         # Check if it is a list of ordered integers, terminated by 0
         return node.state == list(range(1, self.size ** 2)) + [0]
@@ -186,7 +186,7 @@ if __name__ == "__main__":
         exit()
 
     # Run the solver
-    path, expansions, elap_time, delta_mem = puzzle.solve_ids(recursive=True)
+    path, expansions, elap_time, delta_mem = puzzle.solve_ids()
 
     # Print results
     if path != False:
