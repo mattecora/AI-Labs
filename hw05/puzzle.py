@@ -39,9 +39,9 @@ class Puzzle:
         while time() - start_time < self.time_limit:
             # Run a depth-limited search
             if self.use_recursion:
-                result, partial_exp = self.solve_dls_rec(Node([], self.initial_state, None, 0, 0), 0, limit, [])
+                result, partial_exp = self.solve_dls_rec(Node([], self.initial_state, None, 0, 0), 0, limit, start_time, [])
             else:
-                result, partial_exp = self.solve_dls_iter(limit)
+                result, partial_exp = self.solve_dls_iter(limit, start_time)
             
             # Update number of expansions
             expansions = expansions + partial_exp
@@ -55,10 +55,14 @@ class Puzzle:
 
         return False, False, False, False
     
-    def solve_dls_rec(self, node, expansions, depth_limit, visited):
+    def solve_dls_rec(self, node, expansions, depth_limit, start_time, visited):
         # Check goal fulfillment
         if self.goal_test(node):
             return node.path[1:] + [node], expansions
+        
+        # Check timeout
+        if time() - start_time >= self.time_limit:
+            return False, expansions
         
         # Check maximum depth
         if node.depth >= depth_limit:
@@ -76,13 +80,13 @@ class Puzzle:
 
         # Loop through possible states
         for successor in self.expand(node):
-            result, expansions = self.solve_dls_rec(successor, expansions, depth_limit, visited)
+            result, expansions = self.solve_dls_rec(successor, expansions, depth_limit, start_time, visited)
             if result != False:
                 return result, expansions
         
         return False, expansions
     
-    def solve_dls_iter(self, depth_limit):
+    def solve_dls_iter(self, depth_limit, start_time):
         # Initialize parameters
         expansions = 0
 
@@ -92,7 +96,7 @@ class Puzzle:
         # Initialize an empty list of visited states
         visited = []
 
-        while len(frontier) > 0:
+        while len(frontier) > 0 and time() - start_time < self.time_limit:
             # Get a node from the front
             node = frontier.pop(0)
 
