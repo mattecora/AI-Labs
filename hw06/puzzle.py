@@ -42,7 +42,7 @@ class Puzzle:
             input_string = input("Input initial state: ")
             initial_state = [int(input_string.strip().split(" ")[i]) for i in range(size ** 2)]
             time_limit = float(input("Input time limit: "))
-            heuristic = h2 if input("What heuristic to use (1/2)? ") != '1' else h1
+            heuristic = h2 if input("Heuristic to use (1/2)? ") != '1' else h1
             return cls(size, initial_state, time_limit, heuristic)
         except Exception:
             print("Invalid input.")
