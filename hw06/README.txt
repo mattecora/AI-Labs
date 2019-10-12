@@ -47,10 +47,10 @@ estimation of a node's cost:
 - h2(), which computes the Manhattan distance of a misplaced tile to its final 
 expected position.
 
-The selection between the two version is performed through a function pointer, 
-stored in the Puzzle object, set to h1 when the first heuristic has to be used 
-and to h2 when the second heuristic has to be used. In both cases, the search 
-method performs the following actions:
+The selection between the two version is performed through an integer variable, 
+stored in the Puzzle object, set to 1 when the first heuristic has to be used 
+and to any other value when the second heuristic has to be used (default). In 
+both cases, the search method performs the following actions:
 
 - It initializes a number of parameters, such as the number of expanded nodes, 
 the start time, the start memory, the search frontier (initially, a single node 
