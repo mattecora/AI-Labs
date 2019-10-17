@@ -21,14 +21,14 @@ class Puzzle:
         self.time_limit = time_limit
         self.heuristic = heuristic
         self.use_recursion = use_recursion
-        self.solution = list(range(1, self.size ** 2)) + [0]
+        self.solution = tuple(list(range(1, self.size ** 2)) + [0])
     
     @classmethod
     def from_console(cls):
         try:
             size = int(input("Input puzzle dimension: "))
             input_string = input("Input initial state: ")
-            initial_state = [int(input_string.strip().split(" ")[i]) for i in range(size ** 2)]
+            initial_state = tuple([int(input_string.strip().split(" ")[i]) for i in range(size ** 2)])
             time_limit = float(input("Input time limit: "))
             heuristic = int(input("Heuristic to use (1/2)? "))
             use_recursion = input("Use recursion (Y/n)? ") != 'n'
@@ -37,15 +37,15 @@ class Puzzle:
             print("Invalid input.")
     
     def h1(self, state):
-        return sum([1 if state[i] != self.solution[i] else 0 for i in range(self.size ** 2)])
+        return sum([1 if state[i] != self.solution[i] else 0 for i in range(1, self.size ** 2)])
 
     def h2(self, state):
         h = 0
 
-        for i in range(self.size ** 2):
-            row, col = state.index(i) // self.size, state.index(i) % self.size
-            exp_row, exp_col = self.solution.index(i) // self.size, self.solution.index(i) % self.size
-            h = h + abs(row - exp_row) + abs(col - exp_col)
+        for i in range(1, self.size ** 2):
+            pos = state.index(i)
+            row, col = pos // self.size, pos % self.size
+            h = h + abs(row - (i - 1) // self.size) + abs(col - (i - 1) % self.size)
         return h
 
     def solve_ida(self):
@@ -61,7 +61,7 @@ class Puzzle:
             if self.use_recursion:
                 result, partial_exp, limit = self.solve_dla_rec(Node([], self.initial_state, None, 0, 0, 
                     self.h1(self.initial_state) if self.heuristic == 1 else self.h2(self.initial_state)), 
-                    0, limit, inf, start_time, [])
+                    0, limit, inf, start_time, set())
             else:
                 result, partial_exp, limit = self.solve_dla_iter(limit, start_time)
             
@@ -89,11 +89,11 @@ class Puzzle:
             return False, expansions, next_limit
         
         # Check if not already visited
-        if any([node.state == other for other in visited]):
+        if node.state in visited:
             return False, expansions, next_limit
         
         # Mark the current state as already visited
-        visited.append(node.state)
+        visited.add(node.state)
 
         # Increment number of expanded nodes
         expansions = expansions + 1
@@ -116,7 +116,7 @@ class Puzzle:
             self.h1(self.initial_state) if self.heuristic == 1 else self.h2(self.initial_state))]
 
         # Initialize an empty list of visited states
-        visited = []
+        visited = set()
 
         while len(frontier) > 0 and time() - start_time < self.time_limit:
             # Get a node from the front
@@ -132,9 +132,9 @@ class Puzzle:
                 next_limit = min(next_limit, node.cost + node.hval)
             
             # Otherwise, check that the state has not already been visited
-            elif not any([node.state == other for other in visited]):
+            elif not node.state in visited:
                 # Mark the current state as already visited
-                visited.append(node.state)
+                visited.add(node.state)
 
                 # Increment number of expanded nodes
                 expansions = expansions + 1
@@ -163,7 +163,8 @@ class Puzzle:
         states = []
         
         # Identify the position of 0
-        row, col = state.index(0) // self.size, state.index(0) % self.size
+        pos = state.index(0)
+        row, col = pos // self.size, pos % self.size
         
         # Not in the first col, we can do L
         if col != 0:
@@ -174,8 +175,8 @@ class Puzzle:
             new_state[row * self.size + col] = new_state[row * self.size + col - 1]
             new_state[row * self.size + col - 1] = 0
 
-            states.append(new_state)
-        
+            states.append(tuple(new_state))
+
         # Not in the first row, we can do U
         if row != 0:
             actions.append("U")
@@ -185,7 +186,7 @@ class Puzzle:
             new_state[row * self.size + col] = new_state[(row - 1) * self.size + col]
             new_state[(row - 1) * self.size + col] = 0
 
-            states.append(new_state)
+            states.append(tuple(new_state))
         
         # Not in the last col, we can do R
         if col != self.size - 1:
@@ -196,7 +197,7 @@ class Puzzle:
             new_state[row * self.size + col] = new_state[row * self.size + col + 1]
             new_state[row * self.size + col + 1] = 0
 
-            states.append(new_state)
+            states.append(tuple(new_state))
         
         # Not in the last row, we can do D
         if row != self.size - 1:
@@ -207,7 +208,7 @@ class Puzzle:
             new_state[row * self.size + col] = new_state[(row + 1) * self.size + col]
             new_state[(row + 1) * self.size + col] = 0
 
-            states.append(new_state)
+            states.append(tuple(new_state))
 
         return actions, states
 
