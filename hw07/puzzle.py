@@ -15,12 +15,11 @@ class Node:
         return (self.cost + self.hval) < (other.cost + other.hval)
 
 class Puzzle:
-    def __init__(self, size, initial_state, time_limit, heuristic, use_recursion):
+    def __init__(self, size, initial_state, time_limit, heuristic):
         self.size = size
         self.initial_state = initial_state
         self.time_limit = time_limit
         self.heuristic = heuristic
-        self.use_recursion = use_recursion
         self.solution = tuple(list(range(1, self.size ** 2)) + [0])
     
     @classmethod
@@ -31,8 +30,7 @@ class Puzzle:
             initial_state = tuple([int(input_string.strip().split(" ")[i]) for i in range(size ** 2)])
             time_limit = float(input("Input time limit: "))
             heuristic = int(input("Heuristic to use (1/2)? "))
-            use_recursion = input("Use recursion (Y/n)? ") != 'n'
-            return cls(size, initial_state, time_limit, heuristic, use_recursion)
+            return cls(size, initial_state, time_limit, heuristic)
         except Exception:
             print("Invalid input.")
     
@@ -58,12 +56,9 @@ class Puzzle:
 
         while time() - start_time < self.time_limit:
             # Run a depth-limited A* search
-            if self.use_recursion:
-                result, partial_exp, limit = self.solve_dla_rec(Node([], self.initial_state, None, 0, 0, 
-                    self.h1(self.initial_state) if self.heuristic == 1 else self.h2(self.initial_state)), 
-                    0, limit, inf, start_time, set())
-            else:
-                result, partial_exp, limit = self.solve_dla_iter(limit, start_time)
+            result, partial_exp, limit = self.solve_dla(Node([], self.initial_state, None, 0, 0, 
+                self.h1(self.initial_state) if self.heuristic == 1 else self.h2(self.initial_state)), 
+                0, limit, inf, start_time, set())
             
             # Update number of expansions
             expansions = expansions + partial_exp
@@ -74,7 +69,7 @@ class Puzzle:
 
         return False, False, False, False
 
-    def solve_dla_rec(self, node, expansions, f_limit, next_limit, start_time, visited):
+    def solve_dla(self, node, expansions, f_limit, next_limit, start_time, visited):
         # Check goal fulfillment
         if self.goal_test(node):
             return node.path[1:] + [node], expansions, next_limit
@@ -100,47 +95,12 @@ class Puzzle:
 
         # Loop through possible states
         for successor in self.expand(node):
-            result, expansions, next_limit = self.solve_dla_rec(successor, expansions, f_limit, next_limit, start_time, visited)
+            result, expansions, next_limit = self.solve_dla(successor, expansions, f_limit, next_limit, start_time, visited)
             if result != False:
                 return result, expansions, next_limit
         
-        return False, expansions, next_limit
-
-    def solve_dla_iter(self, f_limit, start_time):
-        # Initialize parameters
-        expansions = 0
-        next_limit = inf
-
-        # Initialize the frontier with the initial state
-        frontier = [Node([], self.initial_state, None, 0, 0, 
-            self.h1(self.initial_state) if self.heuristic == 1 else self.h2(self.initial_state))]
-
-        # Initialize an empty list of visited states
-        visited = set()
-
-        while len(frontier) > 0 and time() - start_time < self.time_limit:
-            # Get a node from the front
-            node = frontier.pop(0)
-
-            # Check if the goal has been reached
-            if self.goal_test(node):
-                return node.path[1:] + [node], expansions, next_limit
-            
-            # Check if the f-value exceeds the cutoff
-            if node.cost + node.hval > f_limit:
-                # Update the next limit (smallest of the f-values exceeding cutoff)
-                next_limit = min(next_limit, node.cost + node.hval)
-            
-            # Otherwise, check that the state has not already been visited
-            elif not node.state in visited:
-                # Mark the current state as already visited
-                visited.add(node.state)
-
-                # Increment number of expanded nodes
-                expansions = expansions + 1
-
-                # Otherwise, expand the node and add all to the frontier (depth-first)
-                frontier = self.expand(node) + frontier
+        # Remove current state from already visited
+        visited.remove(node.state)
         
         return False, expansions, next_limit
     
