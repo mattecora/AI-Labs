@@ -18,13 +18,44 @@
 
 \subsection{Knowledge base}
 
+A knowledge base is a set of sentences, each of which is expressed in a proper knowledge representation language, that represent some assertions that describe the current state of the world. Each sentence in a knowledge base represent a piece of information that is known to be true in the particular world we are considering.
+
 \subsection{Inference}
+
+Inference is the process of deriving a new sentence $\alpha$ from the ones that we already know to hold true (components of the knowledge base), through a certain procedure $i$. The inference operation is formally denoted as:
+
+$$ KB \vdash_i \alpha $$
+
+The procedure $i$ has to satify two requirements:
+
+\begin{itemize}
+    \item \emph{Soundness}: an inference procedure is \emph{sound} if,	whenever $ KB \vdash_i \alpha $, it is also true that $ KB \models \alpha $ (it can entail any sentence that is derived);
+    \item \emph{Completeness}: an inference procedure is \emph{complete} if, whenever $ KB \models \alpha $, it is also true that $ KB \vdash_i \alpha $ (it can derive any sentence that is entailed).
+\end{itemize}
 
 \subsection{Model}
 
+A model is a formalization of the concept of a "possible world". Whereas possible worlds may be thought as (potentially) real environments that the agent may be in, models are mathematical abstractions, for which we fix the truth value of every relevant sentence.
+
+The knowledge base $KB$ of a knowledge-based agent may satisfy not just a single model, but instead a \emph{set of models}, which is denoted as $M(KB)$. When the knowledge base is made up of few sentences, the cardinality of the set of models may be huge; the more knowledge the agent acquires, the more the set of models shrinks.
+
 \subsection{Entailment}
 
+The concept of entailment formalizes the concept of a sentence $\alpha$ following logically from a knowledge base $KB$. The entailment operation is denoted using the syntax:
+
+$$ KB \models \alpha $$
+
+Formally, $ KB \models \alpha $ if and only if, in each model in which $KB$ is true, then $\alpha$ is also true. In terms of sets of models, this means that:
+
+$$ KB \models \alpha \Leftrightarrow M(KB) \subseteq M(\alpha) $$
+
+In fact, since $KB$ represents a stronger assumption than $\alpha$, this means that the models that $KB$ satisfies are in general less than the models that $\alpha$ satisfies. The existence of an entailment relationship may be simply verified using the procedure known as \emph{model checking}: this requires to enumerate all possible models for the sentences in the knowledge base and for sentence $\alpha$ and to verify whether the inclusion relation $ M(KB) \subseteq M(\alpha) $ holds ($\alpha$ is true in all worlds in which $KB$ is true).
+
 \subsection{Valid sentence}
+
+A sentence is valid (also called \emph{tautology}) if it holds true in all possible models; this means that, since a valid sentence is true in all models, every valid sentence is logically equivalent to true.
+
+Valid sentences are useful for deriving entailment relationships, according to the \emph{deduction theorem}: for any sentences $\alpha$ and $\beta$, $\alpha \models \beta$ if and only if the sentence $\alpha \Rightarrow \beta$ is valid.
 
 \section{Question 2}
 
