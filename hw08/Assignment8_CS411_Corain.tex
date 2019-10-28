@@ -1,0 +1,134 @@
+\documentclass[letterpaper,headings=standardclasses]{scrartcl}
+
+\usepackage[margin=1in,includefoot]{geometry}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Homework 8}
+\subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
+\author{Matteo Corain 650088272}
+
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+
+\subsection{Knowledge base}
+
+\subsection{Inference}
+
+\subsection{Model}
+
+\subsection{Entailment}
+
+\subsection{Valid sentence}
+
+\section{Question 2}
+
+\subsection{Knowledge base representation}
+
+Let us consider the following propositional symbols for the atomic sentences that appear in the knowledge base:
+
+\begin{itemize}
+    \item $X$: "Sam plays baseball";
+    \item $Y$: "Paul plays baseball";
+    \item $Z$: "Ryan plays baseball".
+\end{itemize}
+
+According to propositional logic, the knowledge base in question may be represented by the conjunction of two sentences which have to hold true:
+
+\begin{itemize}
+    \item "Sam plays baseball or Paul plays baseball": this can be represented as a disjunction between sentences $X$ and $Y$:
+    $$ X \vee Y $$
+    \item "Sam plays baseball or Ryan doesn't play baseball": this can be represented as a disjunction between sentences $X$ and $\neg Z$:
+    $$ X \vee \neg Z $$
+\end{itemize}
+
+The overall knowledge base is therefore represented by the expression:
+
+$$ (X \vee Y) \wedge (X \vee \neg Z) $$
+
+Applying logical equivalence rules, this may also be rewritten as:
+
+$$ X \wedge (Y \vee \neg Z) $$
+
+The truth table for such a knowledge base is shown in table \ref{tt_kb}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    $X$ & $Y$ & $Z$ & $X \vee Y$ & $X \vee \neg Z$ & $KB$ \\ \hline
+    false & false & false & false & true & false \\ \hline
+    false & false & true & false & false & false \\ \hline
+    false & true & false & true & true & true \\ \hline
+    false & true & true & true & false & false \\ \hline
+    true & false & false & true & true & true \\ \hline
+    true & false & true & true & true & true \\ \hline
+    true & true & false & true & true & true \\ \hline
+    true & true & true & true & true & true \\ \hline
+    \end{tabular}
+    \caption{Truth table for the knowledge base}
+    \label{tt_kb}
+\end{table}
+
+\subsection{Entailment A}
+
+The sentence "Sam and Ryan both play baseball" may be represented in terms of the atomic propositions $X$ and $Z$ as:
+
+$$ A = X \wedge Z $$
+
+To check whether this sentence is entailed by the knowledge base, we can use a model checking procedure, as shown in table \ref{tt_a}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    $X$ & $Y$ & $Z$ & $KB$ & $A = X \wedge Z$ \\ \hline
+    false & false & false & false & false \\ \hline
+    false & false & true & false & false \\ \hline
+    false & true & false & true & false \\ \hline
+    false & true & true & false & false \\ \hline
+    true & false & false & true & false \\ \hline
+    true & false & true & true & true \\ \hline
+    true & true & false & true & false \\ \hline
+    true & true & true & true & true \\ \hline
+    \end{tabular}
+    \caption{Model checking for entailment A}
+    \label{tt_a}
+\end{table}
+
+Since there are worlds in which the knowledge base holds true but the presented sentence does not, we cannot state that $A$ can be entailed from the knowledge base. For example, in a model in which Paul plays baseball but the other two do not, the knowledge base holds true but the given sentence does not (neither Sam nor Ryan play baseball).
+
+\subsection{Entailment B}
+
+The sentence "At least one among Sam, Paul and Ryan play baseball" may be represented in terms of the atomic propositions $X$, $Y$ and $Z$ as:
+
+$$ B = X \vee Y \vee Z $$
+
+To check whether this sentence is entailed by the knowledge base, we can use a model checking procedure, as shown in table \ref{tt_b}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+    \hline
+    $X$ & $Y$ & $Z$ & $KB$ & $B = X \vee Y \vee Z$ \\ \hline
+    false & false & false & false & false \\ \hline
+    false & false & true & false & true \\ \hline
+    false & true & false & true & true \\ \hline
+    false & true & true & false & true \\ \hline
+    true & false & false & true & true \\ \hline
+    true & false & true & true & true \\ \hline
+    true & true & false & true & true \\ \hline
+    true & true & true & true & true \\ \hline
+    \end{tabular}
+    \caption{Model checking for entailment B}
+    \label{tt_b}
+\end{table}
+
+Since in every world in which the knowledge base is true so it is also the given sentence, we can state that $B$ can be entailed from the knowledge base.
+
+\end{document}
