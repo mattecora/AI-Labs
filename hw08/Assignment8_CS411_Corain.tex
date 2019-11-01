@@ -18,30 +18,32 @@
 
 \subsection{Knowledge base}
 
-A knowledge base is a set of sentences, each of which is expressed in a proper knowledge representation language, that represent some assertions that describe the current state of the world. Each sentence in a knowledge base represent a piece of information that is known to be true in the particular world we are considering.
+A \emph{knowledge base} is a set of sentences (in conjunction with each other), each of which is expressed in a proper knowledge representation language, that represent some assertions that describe the current state of the world. Each sentence in a knowledge base represent a piece of information that is known to be true in the particular world we are considering.
 
 \subsection{Inference}
 
-Inference is the process of deriving a new sentence $\alpha$ from the ones that we already know to hold true (components of the knowledge base), through a certain procedure $i$. The inference operation is formally denoted as:
+\emph{Inference} is the process of deriving a new sentence $\alpha$ from the ones that we already know to hold true (components of the knowledge base), through a certain procedure $i$. The inference operation is formally denoted as:
 
 $$ KB \vdash_i \alpha $$
 
-The procedure $i$ has to satify two requirements:
+It is desirable that procedure $i$ satisfies two requirements:
 
 \begin{itemize}
     \item \emph{Soundness}: an inference procedure is \emph{sound} if,	whenever $ KB \vdash_i \alpha $, it is also true that $ KB \models \alpha $ (it can entail any sentence that is derived);
     \item \emph{Completeness}: an inference procedure is \emph{complete} if, whenever $ KB \models \alpha $, it is also true that $ KB \vdash_i \alpha $ (it can derive any sentence that is entailed).
 \end{itemize}
 
+Examples of procedures that allow to perform inference include \emph{inference by enumeration} (model checking), \emph{modus ponens}, and \emph{resolution}.
+
 \subsection{Model}
 
-A model is a formalization of the concept of a "possible world". Whereas possible worlds may be thought as (potentially) real environments that the agent may be in, models are mathematical abstractions, for which we fix the truth value of every relevant sentence.
+A \emph{model} is the formalization of the concept of a ``possible world'', represented by a mathematical abstraction that describes it by fixing the truth value of relevant primitive sentences.
 
 The knowledge base $KB$ of a knowledge-based agent may satisfy not just a single model, but instead a \emph{set of models}, which is denoted as $M(KB)$. When the knowledge base is made up of few sentences, the cardinality of the set of models may be huge; the more knowledge the agent acquires, the more the set of models shrinks.
 
 \subsection{Entailment}
 
-The concept of entailment formalizes the concept of a sentence $\alpha$ following logically from a knowledge base $KB$. The entailment operation is denoted using the syntax:
+The concept of \emph{entailment} formalizes the idea of a sentence $\alpha$ following logically from a knowledge base $KB$ and it is denoted with the syntax:
 
 $$ KB \models \alpha $$
 
@@ -53,7 +55,7 @@ In fact, since $KB$ represents a stronger assumption than $\alpha$, this means t
 
 \subsection{Valid sentence}
 
-A sentence is valid (also called \emph{tautology}) if it holds true in all possible models; this means that, since a valid sentence is true in all models, every valid sentence is logically equivalent to true.
+A sentence is valid (or, equivalently, \emph{tautological}) if it holds true in all possible models; in other words, every valid sentence is inconditionally logically equivalent to true.
 
 Valid sentences are useful for deriving entailment relationships, according to the \emph{deduction theorem}: for any sentences $\alpha$ and $\beta$, $\alpha \models \beta$ if and only if the sentence $\alpha \Rightarrow \beta$ is valid.
 
@@ -64,27 +66,23 @@ Valid sentences are useful for deriving entailment relationships, according to t
 Let us consider the following propositional symbols for the atomic sentences that appear in the knowledge base:
 
 \begin{itemize}
-    \item $X$: "Sam plays baseball";
-    \item $Y$: "Paul plays baseball";
-    \item $Z$: "Ryan plays baseball".
+    \item $X$: ``Sam plays baseball'';
+    \item $Y$: ``Paul plays baseball'';
+    \item $Z$: ``Ryan plays baseball''.
 \end{itemize}
 
-According to propositional logic, the knowledge base in question may be represented by the conjunction of two sentences which have to hold true:
+According to propositional logic, the knowledge base in question may be represented by the conjunction of two sentences which hold true in the considered world:
 
 \begin{itemize}
-    \item "Sam plays baseball or Paul plays baseball": this can be represented as a disjunction between sentences $X$ and $Y$:
+    \item ``Sam plays baseball or Paul plays baseball'': this can be represented as a disjunction between sentences $X$ and $Y$:
     $$ X \vee Y $$
-    \item "Sam plays baseball or Ryan doesn't play baseball": this can be represented as a disjunction between sentences $X$ and $\neg Z$:
+    \item ``Sam plays baseball or Ryan doesn't play baseball'': this can be represented as a disjunction between sentences $X$ and $\neg Z$:
     $$ X \vee \neg Z $$
 \end{itemize}
 
 The overall knowledge base is therefore represented by the expression:
 
-$$ (X \vee Y) \wedge (X \vee \neg Z) $$
-
-Applying logical equivalence rules, this may also be rewritten as:
-
-$$ X \wedge (Y \vee \neg Z) $$
+$$ KB = (X \vee Y) \wedge (X \vee \neg Z) = X \wedge (Y \vee \neg Z) $$
 
 The truth table for such a knowledge base is shown in table \ref{tt_kb}.
 
@@ -108,7 +106,7 @@ The truth table for such a knowledge base is shown in table \ref{tt_kb}.
 
 \subsection{Entailment A}
 
-The sentence "Sam and Ryan both play baseball" may be represented in terms of the atomic propositions $X$ and $Z$ as:
+The sentence ``Sam and Ryan both play baseball'' may be represented in terms of the atomic propositions $X$ and $Z$ as:
 
 $$ A = X \wedge Z $$
 
@@ -136,7 +134,7 @@ Since there are worlds in which the knowledge base holds true but the presented 
 
 \subsection{Entailment B}
 
-The sentence "At least one among Sam, Paul and Ryan play baseball" may be represented in terms of the atomic propositions $X$, $Y$ and $Z$ as:
+The sentence ``At least one among Sam, Paul and Ryan play baseball'' may be represented in terms of the atomic propositions $X$, $Y$ and $Z$ as:
 
 $$ B = X \vee Y \vee Z $$
 
