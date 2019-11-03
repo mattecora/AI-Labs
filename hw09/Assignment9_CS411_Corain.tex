@@ -1,0 +1,83 @@
+\documentclass[letterpaper,headings=standardclasses]{scrartcl}
+
+\usepackage[margin=1in,includefoot]{geometry}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\title{Homework 9}
+\subtitle{CS 411 - Artificial Intelligence I - Fall 2019}
+\author{Matteo Corain 650088272}
+
+\begin{document}
+
+\maketitle
+
+\section{Question 1}
+
+\subsection{Syntax}
+
+\subsection{Semantics}
+
+\subsection{Modus ponens}
+
+\subsection{Monotonicity}
+
+\subsection{Proof by contradiction}
+
+\section{Question 2}
+
+Let us introduce the following atomic propositions:
+
+\begin{itemize}
+    \item $A$: ``Ana eats'';
+    \item $B$: ``Bret eats'';
+    \item $C$: ``Charles eats'';
+    \item $D$: ``Derek eats'';
+    \item $E$: ``Earl eats'';
+    \item $F$: ``Fred eats''.
+\end{itemize}
+
+Using those symbols, it is possible to translate the given sentences in formal propositional sentences in the following way:
+
+\begin{itemize}
+    \item ``If Ana eats, Bret eats'': $A \Rightarrow B$;
+    \item ``Charles eats and Derek doesn't eat'': $C \wedge \neg D$;
+    \item ``Bret doesn't eat'': $\neg B$;
+    \item ``If Derek doesn't eat, at least one among Ana, Earl and Fred eats'': $\neg D \Rightarrow (A \vee E \vee F)$;
+    \item ``If at least one of Charles and Gary eats, Earl doesn't' eat': $(C \vee G) \Rightarrow \neg E$.
+\end{itemize}
+
+\section{Question 3}
+
+In order to prove that $F$ is true, the following steps may be taken:
+
+\begin{itemize}
+    \item From sentence 3, we know that $\neg B$ is true, which means that $B$ is necessarily false ($\neg True = False$);
+    \item From sentence 2, we know that $C \wedge \neg D$ is true, which means that $C$ is necessarily true and $D$ is necessarily false ($True \wedge \neg False = True$);
+    \item From sentence 1, we know that $A \Rightarrow B$ is true; since $B$ is false, then $A$ is necessarily false ($False \Rightarrow False = True$);
+    \item From sentence 5, we know that $(C \vee G) \Rightarrow \neg E$ is true; since $C$ is true, then $C \vee G$ is true independently of the value of $G$; therefore, $\neg E$ has to be true ($True \Rightarrow True = True$) and, necessarily $E$ is false;
+    \item Finally, from sentence 4, we know that $\neg D \Rightarrow (A \vee E \vee F)$ is true; since $D$ is false, then $\neg D$ is true, which means that $A \vee E \vee F$ needs to be true as well ($True \Rightarrow True = True$); however, since $A$ and $E$ are both false, necessarily $F$ is true.
+\end{itemize}
+
+The truth value of the atomic propositions is summarized in table \ref{tt}.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|c|c|}
+    \hline
+    Proposition & Value \\ \hline
+    $A$ & False \\ \hline
+    $B$ & False \\ \hline
+    $C$ & True \\ \hline
+    $D$ & False \\ \hline
+    $E$ & False \\ \hline
+    $F$ & True \\ \hline
+    $G$ & Undetermined \\ \hline
+    \end{tabular}
+    \caption{Truth status of the atomic propositions}
+    \label{tt}
+\end{table}
+
+\end{document}
