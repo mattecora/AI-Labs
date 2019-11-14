@@ -1,3 +1,4 @@
+from math import inf
 import sys
 import matplotlib.pyplot as plt
 
@@ -91,21 +92,21 @@ class MDP:
             return None
     
     def move(self, state, action):
-        if action == "up" and state[1] + 1 < self.size[1]:
-            return (state[0], state[1] + 1)
-        elif action == "down" and state[1] - 1 >= 0:
-            return (state[0], state[1] - 1)
-        elif action == "left" and state[0] - 1 >= 0:
-            return (state[0] - 1, state[1])
-        elif action == "right" and state[0] + 1 < self.size[0]:
+        if action == "up" and state[0] + 1 < self.size[0] and self.board[(state[0] + 1, state[1])].category != "wall":
             return (state[0] + 1, state[1])
+        elif action == "down" and state[0] - 1 >= 0 and self.board[(state[0] - 1, state[1])].category != "wall":
+            return (state[0] - 1, state[1])
+        elif action == "left" and state[1] - 1 >= 0 and self.board[(state[0], state[1] - 1)].category != "wall":
+            return (state[0], state[1] - 1)
+        elif action == "right" and state[1] + 1 < self.size[1] and self.board[(state[0], state[1] + 1)].category != "wall":
+            return (state[0], state[1] + 1)
         else:
             return state
     
     def value_iteration(self):
         U = {}
         Up = {}
-        delta = 100
+        delta = inf
         models = []
 
         # Initialize dictionaries
@@ -141,8 +142,22 @@ class MDP:
 
             # Append returned model
             models.append(dict(Up))
+        
+        # Define the actual policy
+        policy = {}
+        for s in Up:
+            # Search for the best action for each state
+            best_act, best_val = None, 0
+            for a in ["up", "down", "left", "right"]:
+                v = Up[self.move(s, a)]
+                if v > best_val:
+                    best_act = a
+                    best_val = v
+
+            # Add the best action to the policy
+            policy[s] = best_act
     
-        return models
+        return policy, models
 
     def policy_iteration(self):
         pass
@@ -160,6 +175,7 @@ def plot_iter(models, states):
 
 if __name__ == "__main__":
     mdp = MDP.from_file(sys.argv[1])
-    models = mdp.value_iteration()
+    policy, models = mdp.value_iteration()
     
+    print(policy)
     plot_iter(models, [(0,0), (2,2), (3,3)])
