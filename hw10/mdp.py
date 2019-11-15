@@ -1,5 +1,6 @@
 from math import inf
-import sys
+from sys import argv
+
 import matplotlib.pyplot as plt
 
 class Square:
@@ -92,14 +93,14 @@ class MDP:
             return None
     
     def move(self, state, action):
-        if action == "up" and state[0] + 1 < self.size[0] and self.board[(state[0] + 1, state[1])].category != "wall":
-            return (state[0] + 1, state[1])
-        elif action == "down" and state[0] - 1 >= 0 and self.board[(state[0] - 1, state[1])].category != "wall":
-            return (state[0] - 1, state[1])
-        elif action == "left" and state[1] - 1 >= 0 and self.board[(state[0], state[1] - 1)].category != "wall":
-            return (state[0], state[1] - 1)
-        elif action == "right" and state[1] + 1 < self.size[1] and self.board[(state[0], state[1] + 1)].category != "wall":
+        if action == "up" and state[1] + 1 < self.size[1] and self.board[(state[0], state[1] + 1)].category != "wall":
             return (state[0], state[1] + 1)
+        elif action == "down" and state[1] - 1 >= 0 and self.board[(state[0], state[1] - 1)].category != "wall":
+            return (state[0], state[1] - 1)
+        elif action == "left" and state[0] - 1 >= 0 and self.board[(state[0] - 1, state[1])].category != "wall":
+            return (state[0] - 1, state[1])
+        elif action == "right" and state[0] + 1 < self.size[0] and self.board[(state[0] + 1, state[1])].category != "wall":
+            return (state[0] + 1, state[1])
         else:
             return state
     
@@ -146,10 +147,14 @@ class MDP:
         # Define the actual policy
         policy = {}
         for s in Up:
+            # Exclude if terminal or wall state
+            if self.board[s].category != "regular":
+                continue
+
             # Search for the best action for each state
             best_act, best_val = None, 0
             for a in ["up", "down", "left", "right"]:
-                v = Up[self.move(s, a)]
+                v = sum([self.tmodel[a][ap] * Up[self.move(s, ap)] for ap in ["up", "down", "left", "right"]])
                 if v > best_val:
                     best_act = a
                     best_val = v
@@ -162,20 +167,52 @@ class MDP:
     def policy_iteration(self):
         pass
 
-def plot_iter(models, states):
-    plt.figure()
+    def plot(self, models, states, policy):
+        plt.figure()
 
-    for s in states:
-        plt.plot([models[i][s] for i in range(len(models))])
-    
-    plt.grid()
-    plt.title("Value iteration curves")
-    plt.legend(states)
-    plt.show()
+        # Plot value iteration curves
+        for s in states:
+            plt.plot([models[i][s] for i in range(len(models))])
+        
+        # Show grid, title and legend
+        plt.grid()
+        plt.title("Value iteration curves")
+        plt.legend(states)
+
+        # Plot board (adequately adjusting indices)
+        plt.figure()
+        plt.imshow([[models[-1][(j, self.size[1] - 1 - i)] for j in range(self.size[0])] for i in range(self.size[1])])
+        
+        # Add annotations to the states
+        for i in range(self.size[1]):
+            for j in range(self.size[0]):
+                # Regular state, print value and policy
+                if self.board[(j, self.size[1] - 1 - i)].category == "regular":
+                    plt.text(j, i, f"{round(models[-1][(j, self.size[1] - 1 - i)], 4)}\n{policy[(j, self.size[1] - 1 - i)]}", ha="center", va="center", color="w")
+                
+                # Terminal state, print value
+                elif self.board[(j, self.size[1] - 1 - i)].category == "terminal":
+                    plt.text(j, i, f"{round(models[-1][(j, self.size[1] - 1 - i)], 4)}\nterminal", ha="center", va="center", color="w")
+                
+                # Wall state
+                elif self.board[(j, self.size[1] - 1 - i)].category == "wall":
+                    plt.text(j, i, "wall", ha="center", va="center", color="w")
+
+        # Adjust axes and show title
+        plt.yticks(range(self.size[1]), reversed(range(1, self.size[1] + 1)))
+        plt.xticks(range(self.size[0]), range(1, self.size[0] + 1))
+        plt.axis([-0.5, self.size[0] - 0.5, self.size[1] - 0.5, -0.5])
+        plt.title("Value iteration optimal policy")
+
+        # Show plots
+        plt.show()
 
 if __name__ == "__main__":
-    mdp = MDP.from_file(sys.argv[1])
+    # Create the MDP
+    mdp = MDP.from_file(argv[1])
+
+    # Compute the policy through value iteration
     policy, models = mdp.value_iteration()
-    
-    print(policy)
-    plot_iter(models, [(0,0), (2,2), (3,3)])
+
+    # Plot the results
+    mdp.plot(models, [(0,0)], policy)
