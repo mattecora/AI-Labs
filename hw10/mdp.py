@@ -167,10 +167,9 @@ class MDP:
     def policy_iteration(self):
         pass
 
-    def plot(self, models, states, policy):
-        plt.figure()
-
+    def plot(self, policy, models, states):
         # Plot value iteration curves
+        plt.figure()
         for s in states:
             plt.plot([models[i][s] for i in range(len(models))])
         
@@ -214,5 +213,10 @@ if __name__ == "__main__":
     # Compute the policy through value iteration
     policy, models = mdp.value_iteration()
 
+    # Parse states to print value iteration curves
+    states = []
+    for i in range(2, len(argv)):
+        states.append((int(argv[i].split(",")[0]) - 1, int(argv[i].split(",")[1]) - 1))
+
     # Plot the results
-    mdp.plot(models, [(0,0)], policy)
+    mdp.plot(policy, models, states)
