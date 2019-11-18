@@ -1,5 +1,6 @@
 from math import inf
 from sys import argv
+from random import choice
 
 import matplotlib.pyplot as plt
 
@@ -110,11 +111,16 @@ class MDP:
         delta = inf
         models = []
 
-        # Initialize dictionaries
+        # Initialize U and U'
         for i in range(self.size[0]):
             for j in range(self.size[1]):
-                U[(i, j)] = 0
-                Up[(i, j)] = 0
+                # Check if (i, j) is a terminal state
+                if self.board[(i, j)].category == "terminal":
+                    Up[(i, j)] = self.board[(i, j)].reward
+                
+                # Otherwise, give initial empty value
+                else:
+                    Up[(i, j)] = 0
 
         # Start value iteration loop
         while delta > self.epsilon * (1 - self.gamma) / self.gamma:
@@ -122,16 +128,8 @@ class MDP:
             delta = 0
 
             for s in self.board:
-                # Check if s is a wall state
-                if self.board[s].category == "wall":
-                    Up[s] = 0
-                
-                # Check if s is a terminal state
-                elif self.board[s].category == "terminal":
-                    Up[s] = self.board[s].reward
-                
                 # Compute U'[s] for regular states
-                else:
+                if self.board[s].category == "regular":
                     Up[s] = self.board[s].reward + self.gamma * max([
                         sum([self.tmodel[a][ap] * U[self.move(s, ap)] for ap in ["up", "down", "left", "right"]])
                         for a in ["up", "down", "left", "right"]
@@ -143,7 +141,15 @@ class MDP:
 
             # Append returned model
             models.append(dict(Up))
-        
+
+            # Print model to console
+            print(f"Iteration {len(models)}:")
+            for i in range(self.size[1]):
+                for j in range(self.size[0]):
+                    print(f"{models[-1][(j, self.size[1] - 1 - i)]:+.4f} ", end="")
+                print()
+            print()
+            
         # Define the actual policy
         policy = {}
         for s in Up:
@@ -152,7 +158,7 @@ class MDP:
                 continue
 
             # Search for the best action for each state
-            best_act, best_val = None, 0
+            best_act, best_val = None, -inf
             for a in ["up", "down", "left", "right"]:
                 v = sum([self.tmodel[a][ap] * Up[self.move(s, ap)] for ap in ["up", "down", "left", "right"]])
                 if v > best_val:
@@ -165,18 +171,90 @@ class MDP:
         return policy, models
 
     def policy_iteration(self):
-        pass
+        policy = {}
+        U = {}
+        Up = {}
+        unchanged = False
+        models = []
+
+        # Initialize U and U' and define random initial policy
+        for i in range(self.size[0]):
+            for j in range(self.size[1]):
+                # Check if (i, j) is a wall state
+                if self.board[(i, j)].category == "wall":
+                    Up[(i, j)] = 0
+                
+                # Check if (i, j) is a terminal state
+                elif self.board[(i, j)].category == "terminal":
+                    Up[(i, j)] = self.board[(i, j)].reward
+                
+                # Otherwise, initialize random policy
+                else:
+                    policy[(i, j)] = choice(["up", "down", "left", "right"])
+                    Up[(i, j)] = 0
+        
+        # Start policy iteration loop
+        while not unchanged:
+            unchanged = True
+
+            # Evaluate the policy iteratively
+            delta = inf
+            while delta > self.epsilon * (1 - self.gamma) / self.gamma:
+                U = dict(Up)
+                delta = 0
+
+                for s in policy:
+                    # Compute U' value
+                    Up[s] = self.board[s].reward + self.gamma * sum(
+                        [self.tmodel[policy[s]][ap] * U[self.move(s, ap)] for ap in ["up", "down", "left", "right"]]
+                    )
+                    
+                    # Update delta
+                    if abs(Up[s] - U[s]) > delta:
+                        delta = abs(Up[s] - U[s])
+
+            # Update the policy
+            for s in policy:
+                # Compute policy value
+                policy_val = sum([self.tmodel[policy[s]][ap] * Up[self.move(s, ap)] for ap in ["up", "down", "left", "right"]])
+
+                # Compute best value
+                best_act, best_val = None, -inf
+                for a in ["up", "down", "left", "right"]:
+                    v = sum([self.tmodel[a][ap] * Up[self.move(s, ap)] for ap in ["up", "down", "left", "right"]])
+                    if v > best_val:
+                        best_act = a
+                        best_val = v
+                
+                # Check if policy needs to be changed
+                if best_val > policy_val:
+                    policy[s] = best_act
+                    unchanged = False
+            
+            # Append returned model
+            models.append(dict(Up))
+
+            # Print policy to console
+            print(f"Iteration {len(models)}:")
+            for i in range(self.size[1]):
+                for j in range(self.size[0]):
+                    print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':5} ", end="")
+                print()
+            print()
+        
+        return policy, models
 
     def plot(self, policy, models, states):
-        # Plot value iteration curves
-        plt.figure()
-        for s in states:
-            plt.plot([models[i][s] for i in range(len(models))])
-        
-        # Show grid, title and legend
-        plt.grid()
-        plt.title("Value iteration curves")
-        plt.legend(states)
+        if len(states) > 0:
+            # Plot value iteration curves
+            plt.figure()
+            for s in states:
+                plt.plot([0] + [models[i][s] for i in range(len(models))])
+            
+            # Show grid, title and legend
+            plt.grid()
+            plt.title("Value curves")
+            plt.legend(states)
 
         # Plot board (adequately adjusting indices)
         plt.figure()
@@ -201,7 +279,7 @@ class MDP:
         plt.yticks(range(self.size[1]), reversed(range(1, self.size[1] + 1)))
         plt.xticks(range(self.size[0]), range(1, self.size[0] + 1))
         plt.axis([-0.5, self.size[0] - 0.5, self.size[1] - 0.5, -0.5])
-        plt.title("Value iteration optimal policy")
+        plt.title("Optimal policy")
 
         # Show plots
         plt.show()
@@ -210,12 +288,20 @@ if __name__ == "__main__":
     # Create the MDP
     mdp = MDP.from_file(argv[1])
 
-    # Compute the policy through value iteration
-    policy, models = mdp.value_iteration()
-
+    # Select mode
+    if argv[2] == "-v":
+        # Compute the policy through value iteration
+        policy, models = mdp.value_iteration()
+    elif argv[2] == "-p":
+        # Compute the policy through policy iteration
+        policy, models = mdp.policy_iteration()
+    else:
+        print("Please run with -v or -p options.")
+        exit()
+    
     # Parse states to print value iteration curves
     states = []
-    for i in range(2, len(argv)):
+    for i in range(3, len(argv)):
         states.append((int(argv[i].split(",")[0]) - 1, int(argv[i].split(",")[1]) - 1))
 
     # Plot the results
