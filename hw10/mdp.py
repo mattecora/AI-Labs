@@ -167,6 +167,14 @@ class MDP:
 
             # Add the best action to the policy
             policy[s] = best_act
+        
+        # Print policy to console
+        print(f"Overall policy:")
+        for i in range(self.size[1]):
+            for j in range(self.size[0]):
+                print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':^5} ", end="")
+            print()
+        print()
     
         return policy, models
 
@@ -238,7 +246,7 @@ class MDP:
             print(f"Iteration {len(models)}:")
             for i in range(self.size[1]):
                 for j in range(self.size[0]):
-                    print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':5} ", end="")
+                    print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':^5} ", end="")
                 print()
             print()
         
