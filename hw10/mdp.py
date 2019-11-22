@@ -144,11 +144,7 @@ class MDP:
 
             # Print model to console
             print(f"Iteration {len(models)}:")
-            for i in range(self.size[1]):
-                for j in range(self.size[0]):
-                    print(f"{models[-1][(j, self.size[1] - 1 - i)]:+.4f} ", end="")
-                print()
-            print()
+            self.print_model(Up)
             
         # Define the actual policy
         policy = {}
@@ -170,11 +166,7 @@ class MDP:
         
         # Print policy to console
         print(f"Overall policy:")
-        for i in range(self.size[1]):
-            for j in range(self.size[0]):
-                print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':^5} ", end="")
-            print()
-        print()
+        self.print_policy(policy)
     
         return policy, models
 
@@ -242,15 +234,29 @@ class MDP:
             # Append returned model
             models.append(dict(Up))
 
-            # Print policy to console
+            # Print model to console
             print(f"Iteration {len(models)}:")
-            for i in range(self.size[1]):
-                for j in range(self.size[0]):
-                    print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':^5} ", end="")
-                print()
-            print()
+            self.print_model(Up)
+        
+        # Print policy to console
+        print(f"Overall policy:")
+        self.print_policy(policy)
         
         return policy, models
+
+    def print_model(self, model):
+        for i in range(self.size[1]):
+            for j in range(self.size[0]):
+                print(f"{model[(j, self.size[1] - 1 - i)]:+.4f} ", end="")
+            print()
+        print()
+
+    def print_policy(self, policy):
+        for i in range(self.size[1]):
+            for j in range(self.size[0]):
+                print(f"{policy[(j, self.size[1] - 1 - i)] if (j, self.size[1] - 1 - i) in policy else '-':^7}", end="")
+            print()
+        print()
 
     def plot(self, policy, models, states):
         if len(states) > 0:
@@ -293,8 +299,16 @@ class MDP:
         plt.show()
 
 if __name__ == "__main__":
+    # Check arguments
+    if len(argv) < 3:
+        print("Usage: python mdp.py [mdp_input_file] [mode] [states]")
+        exit()
+    
     # Create the MDP
     mdp = MDP.from_file(argv[1])
+    if mdp is None:
+        print("Cannot create the MDP from the input file.")
+        exit()
 
     # Select mode
     if argv[2] == "-v":
