@@ -1,13 +1,19 @@
-import csv
-import math
+from csv import reader
+from math import log2
+from scipy.stats import chi2
 
 class Leaf:
-    def __init__(self, label):
+    def __init__(self, label, examples, labels):
         self.label = label
+        self.examples = examples
+        self.labels = labels
 
 class Subtree:
-    def __init__(self, split_att):
+    def __init__(self, split_att, info_gain, examples, labels):
         self.split_att = split_att
+        self.info_gain = info_gain
+        self.examples = examples
+        self.labels = labels
         self.edges = {}
     
     def add_edge(self, value, result):
@@ -28,7 +34,7 @@ class DecisionTree:
             prob[value] = sum([1 for v in values if v == value]) / len(values)
         
         # Compute the entropy value
-        entropy = - sum([prob[v] * math.log2(prob[v]) for v in set(values)])
+        entropy = - sum([prob[v] * log2(prob[v]) for v in set(values)])
         return entropy
 
     def _mode(self, labels):
@@ -67,30 +73,26 @@ class DecisionTree:
                 best_att = att
                 best_gain = gain
 
-        return best_att
+        return best_att, best_gain
 
-    def _dtree_learn(self, examples, attributes, labels, default, level):
+    def _fit_int(self, examples, attributes, labels, default, level):
         # Check if examples is empty
         if len(examples) == 0:
-            print("  " * level + f"Label: {default}")
-            return Leaf(default)
+            return Leaf(default, examples, labels)
 
         # Check if all elements have the same classification
         elif all([y == labels[0] for y in labels]):
-            print("  " * level + f"Label: {labels[0]}")
-            return Leaf(labels[0])
+            return Leaf(labels[0], examples, labels)
         
         # Check if attributes is empty
         elif len(attributes) == 0:
-            print("  " * level + f"Label: {self._mode(labels)}")
-            return Leaf(self._mode(labels))
+            return Leaf(self._mode(labels), examples, labels)
         
         # Select the split attribute
-        split_att = self._best_attribute(examples, attributes, labels)
-        print("  " * level + f"Splitting on {split_att}:")
+        split_att, info_gain = self._best_attribute(examples, attributes, labels)
 
         # Create the subtree
-        subtree = Subtree(split_att)
+        subtree = Subtree(split_att, info_gain, examples, labels)
         
         # Create edges for each value
         for value in set([e[split_att] for e in examples]):
@@ -98,13 +100,13 @@ class DecisionTree:
             split_attributes = [a for a in attributes if a != split_att]
             split_labels = [labels[i] for i in range(len(labels)) if examples[i][split_att] == value]
             
-            print("  " * level + f"Value {value}:")
-            subtree.add_edge(value, self._dtree_learn(split_examples, split_attributes, split_labels, self._mode(labels), level + 1))
+            subtree.add_edge(value, self._fit_int(split_examples, split_attributes, split_labels, self._mode(labels), level + 1))
         
         return subtree
 
     def fit(self, examples, labels):
-        self.root = self._dtree_learn(examples, examples[0].keys(), labels, self._mode(labels), 0)
+        # Fit the tree
+        self.root = self._fit_int(examples, examples[0].keys(), labels, self._mode(labels), 0)
 
     def predict(self, examples):
         labels = []
@@ -136,6 +138,57 @@ class DecisionTree:
         # Compute the overall accuracy
         predicted_labels = self.predict(examples)
         return sum([1 for i in range(len(labels)) if labels[i] == predicted_labels[i]]) / len(labels)
+    
+    def _prune_int(self, node, alpha):
+        # Process any subtree of the current node
+        for value in node.edges:
+            if type(node.edges[value]) == Subtree:
+                node.edges[value] = self._prune_int(node.edges[value], alpha)
+
+        # Test a node for pruning if it has only Leaf edges
+        if all([type(node.edges[v]) == Leaf for v in node.edges]):
+            # Count positive and negative elements in the node
+            p = sum([1 for l in node.labels if l == "Yes"])
+            n = sum([1 for l in node.labels if l == "No"])
+            data_chi2 = 0
+
+            # Count positive and negative elements in the leaves and update the chi-squared
+            for value in node.edges:
+                pk = sum([1 for l in node.edges[value].labels if l == "Yes"])
+                nk = sum([1 for l in node.edges[value].labels if l == "No"])
+                pk_hat = p * (pk + nk) / (p + n)
+                nk_hat = n * (pk + nk) / (p + n)
+                data_chi2 = data_chi2 + ((pk - pk_hat) ** 2) / pk_hat + ((nk - nk_hat) ** 2) / nk_hat
+            
+            # Check chi-squared and prune the tree
+            if data_chi2 >= chi2(len(node.edges) - 1).ppf(1 - alpha):
+                return Leaf(self._mode(node.labels), node.examples, node.labels)
+            else:
+                return node
+        
+        return node
+    
+    def prune(self, alpha):
+        # Check that the tree has already been fitted
+        if self.root == None:
+            print("Decision tree has not been fitted yet!")
+            return
+        
+        # Prune the tree
+        self.root = self._prune_int(self.root, alpha)
+
+    def _print_int(self, node, level):
+        if type(node) == Leaf:
+            print("    " * level + f"Label: {node.label}")
+            return
+        
+        print("    " * level + f"Split on: {node.split_att}")
+        for value in node.edges:
+            print("    " * level + f"Value: {value}")
+            self._print_int(node.edges[value], level + 1)
+    
+    def print(self):
+        self._print_int(self.root, 0)
 
 def parse_restaurants(filename):
     examples = []
@@ -143,7 +196,7 @@ def parse_restaurants(filename):
 
     with open(filename, "r", newline="") as f:
         # Create the CSV parser
-        parser = csv.reader(f)
+        parser = reader(f)
 
         # Read the class names
         class_names = next(parser)
@@ -166,6 +219,23 @@ examples, labels = parse_restaurants("restaurant.csv")
 # Learn the decision tree
 tree = DecisionTree()
 tree.fit(examples, labels)
+
+# Print the obtained tree
+print("Decision tree before pruning:")
+tree.print()
+
+# Test the classification
+accuracy = tree.test(examples, labels)
+print(f"Decision tree accuracy: {accuracy:.2%}")
+
+print()
+
+# Prune the tree
+tree.prune(0.05)
+
+# Print the pruned tree
+print("Decision tree after pruning:")
+tree.print()
 
 # Test the classification
 accuracy = tree.test(examples, labels)
