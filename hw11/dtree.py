@@ -60,13 +60,11 @@ class DecisionTree:
         # Evaluate splitting on each attribute
         for att in attributes:
             # Compute entropy for each value of the split attribute
-            branch_entropies = []
+            split_entropy = 0
             for value in set([e[att] for e in examples]):
-                branch_entropies.append(self._entropy([labels[i] for i in range(len(labels)) if examples[i][att] == value]))
+                branch_labels = [labels[i] for i in range(len(labels)) if examples[i][att] == value]
+                split_entropy = split_entropy + (self._entropy(branch_labels)) * len(branch_labels) / len(labels)
             
-            # Compute overall split entropy
-            split_entropy = sum(branch_entropies) / len(branch_entropies)
-
             # Evaluate information gain
             gain = split_entropy - base_entropy
             if gain < best_gain:
