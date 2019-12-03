@@ -159,7 +159,7 @@ class DecisionTree:
                 data_chi2 = data_chi2 + ((pk - pk_hat) ** 2) / pk_hat + ((nk - nk_hat) ** 2) / nk_hat
             
             # Check chi-squared and prune the tree
-            if data_chi2 >= chi2(len(node.edges) - 1).ppf(1 - alpha):
+            if data_chi2 <= chi2(len(node.edges) - 1).ppf(1 - alpha):
                 return Leaf(self._mode(node.labels), node.examples, node.labels)
             else:
                 return node
