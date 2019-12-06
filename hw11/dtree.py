@@ -1,3 +1,4 @@
+from sys import argv
 from csv import reader
 from math import log2
 from scipy.stats import chi2
@@ -73,7 +74,7 @@ class DecisionTree:
 
         return best_att, best_gain
 
-    def _fit_int(self, examples, attributes, labels, default, level):
+    def _fit_int(self, examples, attributes, labels, default):
         # Check if examples is empty
         if len(examples) == 0:
             return Leaf(default, examples, labels)
@@ -98,13 +99,13 @@ class DecisionTree:
             split_attributes = [a for a in attributes if a != split_att]
             split_labels = [labels[i] for i in range(len(labels)) if examples[i][split_att] == value]
             
-            subtree.add_edge(value, self._fit_int(split_examples, split_attributes, split_labels, self._mode(labels), level + 1))
+            subtree.add_edge(value, self._fit_int(split_examples, split_attributes, split_labels, self._mode(labels)))
         
         return subtree
 
     def fit(self, examples, labels):
         # Fit the tree
-        self.root = self._fit_int(examples, examples[0].keys(), labels, self._mode(labels), 0)
+        self.root = self._fit_int(examples, examples[0].keys(), labels, self._mode(labels))
 
     def predict(self, examples):
         labels = []
@@ -177,10 +178,10 @@ class DecisionTree:
 
     def _print_int(self, node, level):
         if type(node) == Leaf:
-            print("    " * level + f"Label: {node.label}")
+            print("    " * level + f"Label: {node.label} (Examples: {len(node.examples)})")
             return
         
-        print("    " * level + f"Split on: {node.split_att}")
+        print("    " * level + f"Split on: {node.split_att} (Gain: {abs(node.info_gain):.4f})")
         for value in node.edges:
             print("    " * level + f"Value: {value}")
             self._print_int(node.edges[value], level + 1)
@@ -211,8 +212,13 @@ def parse_restaurants(filename):
     
     return examples, labels
 
+# Check parameters
+if len(argv) < 2:
+    print("Usage: python dtree.py [restaurant_input_file]")
+    exit()
+
 # Parse the input file
-examples, labels = parse_restaurants("restaurant.csv")
+examples, labels = parse_restaurants(argv[1])
 
 # Learn the decision tree
 tree = DecisionTree()
